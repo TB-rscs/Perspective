@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Two Perspectives</title>
+<style>
+:root {
+  --bg: #08080d;
+  --panel: #11111c;
+  --panel2: #171725;
+  --text: #f3f1ff;
+  --muted: #aaa8bf;
+  --pink: #ff4fd8;
+  --cyan: #42eaff;
+  --purple: #a879ff;
+  --green: #7dffbd;
+  --border: #343044;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 24px 15px 50px;
+  background:
+    radial-gradient(ellipse at 10% 0%, #24102d 0, transparent 35%),
+    radial-gradient(ellipse at 95% 15%, #101f35 0, transparent 32%),
+    var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.6;
+}
+main { max-width: 820px; margin: auto; }
+header { text-align: center; margin: 15px 0 30px; }
+h1 {
+  margin: 0;
+  font-size: clamp(2.3rem, 8vw, 4rem);
+  letter-spacing: 2px;
+  line-height: 1.1;
+  color: white;
+  text-shadow: 0 0 12px #ff4fd8, 0 0 30px #a879ff;
+}
+.subtitle {
+  color: var(--muted);
+  margin-top: 12px;
+  font-size: 1rem;
+}
+.panel {
+  background: linear-gradient(145deg, #151522, #0e0e17);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  margin: 18px 0;
+  box-shadow: 0 8px 30px #0008;
+}
+h2 {
+  font-size: 1.3rem;
+  margin: 0 0 8px;
+  color: var(--cyan);
+}
+h3 { color: var(--pink); margin: 22px 0 10px; font-size: 1.1rem; }
+p { margin: 8px 0 14px; }
+.muted { color: var(--muted); font-size: .94rem; }
+.step {
+  display: inline-block;
+  color: var(--pink);
+  font-size: .75rem;
+  letter-spacing: 2px;
+  font-weight: bold;
+  margin-bottom: 7px;
+}
+.trait-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+.trait {
+  position: relative;
+  min-height: 48px;
+  padding: 12px 10px;
+  border: 1px solid #39354b;
+  border-radius: 9px;
+  background: #171724;
+  color: var(--text);
+  text-align: center;
+  cursor: pointer;
+  font-size: .9rem;
+  transition: .15s ease;
+}
+.trait:hover {
+  border-color: var(--cyan);
+  box-shadow: 0 0 12px #42eaff33;
+  z-index: 10;
+}
+.trait.selected {
+  border-color: var(--pink);
+  background: #351b38;
+  color: white;
+  box-shadow: 0 0 13px #ff4fd855;
+}
+.trait.selected::after {
+  content: "✓";
+  color: var(--pink);
+  font-weight: bold;
+  margin-left: 7px;
+}
+.trait::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%) translateY(6px);
+  width: 235px;
+  padding: 10px 12px;
+  background: #1f1d30;
+  color: var(--text);
+  border: 1px solid var(--cyan);
+  border-radius: 8px;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  text-align: left;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.9);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  z-index: 100;
+}
+.trait:hover::before,
+.trait:focus-visible::before {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+.trait:focus-visible, button:focus-visible, select:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+}
+.selection-status {
+  min-height: 24px;
+  color: var(--green);
+  font-size: .88rem;
+  margin-top: 12px;
+}
+button {
+  border: 0;
+  border-radius: 9px;
+  padding: 13px 18px;
+  margin-top: 14px;
+  font-size: .92rem;
+  font-weight: bold;
+  letter-spacing: .5px;
+  cursor: pointer;
+  color: #08080d;
+  background: linear-gradient(100deg, var(--cyan), var(--purple));
+}
+button:hover { filter: brightness(1.12); }
+button.secondary {
+  color: var(--text);
+  background: #292638;
+  border: 1px solid #514965;
+}
+button:disabled { opacity: .35; cursor: not-allowed; }
+.select-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+@media (max-width: 600px) {
+  .select-row { grid-template-columns: 1fr; }
+}
+select {
+  width: 100%;
+  margin: 6px 0 0;
+  padding: 12px;
+  border-radius: 8px;
+  color: var(--text);
+  background: #191927;
+  border: 1px solid #48415d;
+  font-size: .95rem;
+}
+label {
+  display: block;
+  color: var(--cyan);
+  font-size: .9rem;
+  font-weight: bold;
+  margin-top: 14px;
+}
+.hidden { display: none !important; }
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #625174, transparent);
+  margin: 24px 0;
+}
+.result-card {
+  background: #171725;
+  border: 1px solid #38334b;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 14px 0;
+}
+.result-card h3 { margin-top: 0; }
+.result-label {
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  font-size: .72rem;
+  font-weight: bold;
+}
+.result-trait {
+  font-size: 1.35rem;
+  font-weight: bold;
+  color: var(--pink);
+  margin: 4px 0 10px;
+}
+.analysis {
+  border-left: 3px solid var(--purple);
+  padding: 4px 0 4px 14px;
+  margin: 12px 0;
+  font-size: .95rem;
+}
+.analysis strong { color: var(--cyan); }
+.highlight {
+  color: var(--green);
+  font-weight: bold;
+}
+.tag-badge {
+  display: inline-block;
+  background: #252038;
+  border: 1px solid #4e4370;
+  color: var(--cyan);
+  font-size: .75rem;
+  padding: 3px 9px;
+  border-radius: 20px;
+  margin: 0 6px 8px 0;
+}
+.result-heading {
+  text-align: center;
+  padding: 15px 0 5px;
+}
+.result-heading h2 {
+  color: var(--pink);
+  font-size: 1.7rem;
+}
+.footer {
+  text-align: center;
+  color: #77748a;
+  font-size: .78rem;
+  margin-top: 30px;
+}
+@media print {
+  body {
+    background: #08080d !important;
+    color: white !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .no-print { display: none !important; }
+  .panel, .result-card { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>TWO<br>PERSPECTIVES</h1>
+  <div class="subtitle">Two people. Eight selections. An in-depth comparison of self-concept, outside perception, and the dynamics between them.</div>
+</header>
+
+<section id="selectionSection">
+  <div class="panel">
+    <span class="step">ROUND 01</span>
+    <h2>How do you see yourself?</h2>
+    <p class="muted">Select <strong>two</strong> traits that best define your internal operating style. Hover over any trait to view its exact meaning.</p>
+    <div class="trait-grid" id="selfTraits"></div>
+    <div class="selection-status" id="selfStatus">Select 2 traits (0/2 selected).</div>
+  </div>
+
+  <div class="panel">
+    <span class="step">ROUND 02</span>
+    <h2>How do you perceive them?</h2>
+    <p class="muted">Select <strong>two</strong> traits that best capture how their nature registers to you.</p>
+    <div class="trait-grid" id="otherTraits"></div>
+    <div class="selection-status" id="otherStatus">Select 2 traits (0/2 selected).</div>
+    <button id="continueButton" disabled onclick="showExchange()">Proceed to Synthesis</button>
+  </div>
+</section>
+
+<section id="exchangeSection" class="hidden">
+  <div class="panel">
+    <span class="step">DATA EXCHANGE</span>
+    <h2>Cross-Reference Selections</h2>
+    <p>Complete Rounds 01 and 02 independently before comparing notes, then input the four traits the other person selected.</p>
+    <div class="divider"></div>
+    <label>Which two traits did they select for themselves?</label>
+    <div class="select-row">
+      <select id="theirSelf1"><option value="">First self-trait</option></select>
+      <select id="theirSelf2"><option value="">Second self-trait</option></select>
+    </div>
+
+    <label>Which two traits did they select for you?</label>
+    <div class="select-row">
+      <select id="theirView1"><option value="">First trait for you</option></select>
+      <select id="theirView2"><option value="">Second trait for you</option></select>
+    </div>
+
+    <button onclick="generateAnalysis()">Generate Behavioral Synthesis</button>
+    <div id="exchangeError" class="selection-status" style="color:var(--pink);"></div>
+  </div>
+</section>
+
+<section id="resultsSection" class="hidden">
+  <div class="result-heading">
+    <span class="step">SYNTHESIS RESULTS</span>
+    <h2>Perceptual Architecture</h2>
+    <p class="muted">An evaluation of internal identity, external observation, and how your temperaments interact.</p>
+  </div>
+
+  <div id="fourPerspectives"></div>
+
+  <div class="panel">
+    <h2>I. Self-Concept vs. Outside Observation</h2>
+    <p class="muted">Comparing internal motivations directly against outward behavioral footprints.</p>
+    <div id="comparisonAnalysis"></div>
+  </div>
+
+  <div class="panel">
+    <h2>II. Interpersonal Mesh &amp; Friction Points</h2>
+    <p class="muted">How your respective rhythms complement, balance, or challenge one another.</p>
+    <div id="relationalDynamics"></div>
+  </div>
+
+  <div class="panel">
+    <h2>III. Structural Summary</h2>
+    <div id="overallAnalysis"></div>
+  </div>
+
+  <div class="no-print" style="text-align:center">
+    <button onclick="window.print()">Export / Print Results</button>
+    <button class="secondary" onclick="restart()">Reset Matrix</button>
+  </div>
+  <p class="footer">Structured behavioral reflection designed for candid communication and insight.</p>
+</section>
+
+</main>
+
+<script>
+const traits = {
+  "Intense": {
+    domain: "Focus & Energy",
+    style: "internal",
+    pace: "fast",
+    tooltip: "Engages with ideas, emotions, people, or commitments with marked depth, force, and personal investment. Intensity describes degree of engagement, not neutrality or emotional control.",
+    inside: "channels high mental and emotional focus into ideas, values, and commitments",
+    outside: "registers as deeply engaged, serious, and focused even during quiet moments",
+    miss: "internal urgency can feel standard from the inside while registering as heavy or overwhelming from across the table",
+    rub: "requires clear decompression boundaries so sustained intensity doesn't exhaust quieter or more casual partners"
+  },
+  "Curious": {
+    domain: "Mindset",
+    style: "exploratory",
+    pace: "fast",
+    tooltip: "Driven to investigate underlying mechanics, motives, and systems rather than accepting surface explanations.",
+    inside: "treats ambiguity as an opportunity to ask questions, test variables, and explore depth",
+    outside: "comes across as mentally sharp, inquisitive, and hard to bore",
+    miss: "probing questions meant purely to understand can occasionally feel like cross-examination to guarded people",
+    rub: "can keep pushing into complexity when the other person is looking for straightforward closure"
+  },
+  "Detached": {
+    domain: "Emotional Style",
+    style: "guarded",
+    pace: "slow",
+    tooltip: "Maintains deliberate psychological distance, observing situations objectively without immediate emotional entanglement.",
+    inside: "separates observation from emotional reactivity to keep a clear head under pressure",
+    outside: "presents as calm, self-contained, and difficult to pull into interpersonal friction",
+    miss: "emotional containment intended as objective neutrality is frequently misread by expressive partners as indifference",
+    rub: "can create an intimacy gap if the other person relies on visible emotional warmth for reassurance"
+  },
+  "Independent": {
+    domain: "Autonomy",
+    style: "autonomous",
+    pace: "steady",
+    tooltip: "Anchors decisions in personal standards and self-reliance rather than seeking constant consensus.",
+    inside: "protects personal agency and functions comfortably without external validation",
+    outside: "appears self-directed, bounded, and resistant to micromanagement",
+    miss: "habitual self-sufficiency can inadvertently signal that another person's support or input is unnecessary",
+    rub: "clashes with dynamics that equate closeness with constant check-ins or joint decision-making"
+  },
+  "Introspective": {
+    domain: "Mindset",
+    style: "internal",
+    pace: "slow",
+    tooltip: "Continuously examines personal motives, emotional patterns, and the deeper reasons behind reactions.",
+    inside: "turns attention inward to trace cause-and-effect in personal behavior and history",
+    outside: "reads as reflective, deliberate, and rarely impulsive about choices",
+    miss: "extended internal processing can delay outward communication, leaving others guessing at conclusions",
+    rub: "can stall in over-analysis when paired with someone who prefers immediate, direct action"
+  },
+  "Analytical": {
+    domain: "Logic",
+    style: "cognitive",
+    pace: "steady",
+    tooltip: "Deconstructs complex situations into factual evidence and logical patterns before drawing conclusions.",
+    inside: "evaluates claims systematically, separating objective facts from emotional noise",
+    outside: "registers as clear-headed, structured, and difficult to persuade without coherent reasoning",
+    miss: "prioritizing logical precision during emotionally charged moments can feel invalidating to feeling-first people",
+    rub: "may dissect a problem's mechanics when the other person is primarily seeking emotional attunement"
+  },
+  "Observant": {
+    domain: "Awareness",
+    style: "cognitive",
+    pace: "slow",
+    tooltip: "Tracks micro-shifts in tone, behavior, and surroundings that casual attention misses.",
+    inside: "collects granular behavioral data quietly, building accurate mental models over time",
+    outside: "appears quietly aware, hard to fool, and tuned into subtext",
+    miss: "noticing every subtle shift can lead to reading significance into minor, unintentional fluctuations",
+    rub: "creates asymmetry when one person notices every behavioral nuance while the other operates unselfconsciously"
+  },
+  "Intuitive": {
+    domain: "Mindset",
+    style: "exploratory",
+    pace: "steady",
+    tooltip: "Synthesizes disparate cues into rapid, holistic impressions before conscious step-by-step proof.",
+    inside: "recognizes underlying trajectories and unspoken dynamics through fast pattern-spotting",
+    outside: "comes across as insightful, quick to grasp subtext, and unbothered by surface distractions",
+    miss: "strong pattern recognition can occasionally harden into certainty before concrete evidence confirms it",
+    rub: "can frustrate linear thinkers who require step-by-step justification for every conclusion"
+  },
+  "Reserved": {
+    domain: "Social Style",
+    style: "guarded",
+    pace: "slow",
+    tooltip: "Exercises deliberate restraint over self-disclosure, sharing thoughts and vulnerability selectively.",
+    inside: "regulates outward expression carefully, speaking with economy rather than reflexive openness",
+    outside: "registers as poised, measured, and selective about who earns genuine access",
+    miss: "restraint is often mistaken for aloofness or judgment rather than simple preference for deliberate pacing",
+    rub: "requires patience from more transparent personalities who build trust through rapid verbal sharing"
+  },
+  "Adventurous": {
+    domain: "Focus & Energy",
+    style: "exploratory",
+    pace: "fast",
+    tooltip: "Seeks unfamiliar territory, calculated risk, and experiences that disrupt predictable routine.",
+    inside: "generates momentum through novelty, experimentation, and willingness to test boundaries",
+    outside: "appears dynamic, catalytic, and restless inside overly rigid or repetitive structures",
+    miss: "constant appetite for novelty can look like restlessness or disregard for established stability",
+    rub: "creates tension with security-oriented temperaments who rely on predictability to feel grounded"
+  },
+  "Perceptive": {
+    domain: "Awareness",
+    style: "cognitive",
+    pace: "steady",
+    tooltip: "Reads between the lines of human behavior, grasping unspoken motives and relational undercurrents.",
+    inside: "connects behavioral cues to underlying psychological drivers with sharp accuracy",
+    outside: "feels disarmingly difficult to hide behind masks around, as subtext rarely goes unnoticed",
+    miss: "seeing beneath the surface can make it difficult to take casual interactions at simple face value",
+    rub: "can trigger defensiveness in people who prefer not to have their unspoken motives analyzed"
+  },
+  "Empathetic": {
+    domain: "Emotional Style",
+    style: "relational",
+    pace: "steady",
+    tooltip: "Attunes closely to the emotional reality and unspoken vulnerability of other people.",
+    inside: "models another person's internal state accurately, responding with sensitivity to emotional impact",
+    outside: "registers as emotionally intelligent, receptive, and safe to be candid around",
+    miss: "absorbing surrounding emotional tension can blur the boundary between another's distress and one's own",
+    rub: "can become over-extended when paired with highly guarded or emotionally self-contained partners"
+  },
+  "Independent-minded": {
+    domain: "Mindset",
+    style: "autonomous",
+    pace: "steady",
+    tooltip: "Constructs beliefs from first principles rather than defaulting to group consensus or authority.",
+    inside: "interrogates inherited assumptions and holds unconventional positions without social anxiety",
+    outside: "appears intellectually sovereign, candid, and unimpressed by social conformity",
+    miss: "habitual skepticism toward consensus can occasionally read as contrarianism for its own sake",
+    rub: "sparks lively debate or friction with people who value harmony and shared convention over dissent"
+  },
+  "Candid": {
+    domain: "Communication",
+    style: "assertive",
+    pace: "fast",
+    tooltip: "Values unvarnished clarity and truth over diplomatic cushioning or polite ambiguity.",
+    inside: "eliminates subtext by stating observations, boundaries, and disagreements directly",
+    outside: "comes across as refreshing, unambiguous, and trustworthy because nothing is hidden behind politeness",
+    miss: "precision without softening can land as bluntness when the listener expects gradual framing",
+    rub: "tests indirect communicators who interpret direct critique as interpersonal hostility"
+  },
+  "Disciplined": {
+    domain: "Habits",
+    style: "structured",
+    pace: "steady",
+    tooltip: "Subordinates impulse to structure, sustaining consistent execution regardless of fluctuating mood.",
+    inside: "builds reliability through deliberate habits, standards, and follow-through",
+    outside: "registers as dependable, self-governed, and serious about commitments",
+    miss: "high internal standards can subtly turn into impatience with more fluid or improvisational styles",
+    rub: "chafes against spontaneous or unstructured approaches that disrupt established plans"
+  },
+  "Adaptable": {
+    domain: "Flexibility",
+    style: "exploratory",
+    pace: "steady",
+    tooltip: "Recalibrates strategy and expectations fluidly when conditions or priorities shift.",
+    inside: "avoids rigid attachment to a single script, pivoting smoothly as new information emerges",
+    outside: "appears resilient, pragmatic under change, and low-friction in unpredictable environments",
+    miss: "excessive flexibility can obscure core personal preferences, making it harder for others to read your stance",
+    rub: "can frustrate methodical partners who expect fixed commitments and advance predictability"
+  },
+  "Ambitious": {
+    domain: "Focus & Energy",
+    style: "assertive",
+    pace: "fast",
+    tooltip: "Orients energy toward mastery, upward trajectory, and tangible accomplishment.",
+    inside: "converts dissatisfaction with the status quo into structured pursuit of higher benchmarks",
+    outside: "projects drive, forward momentum, and intolerance for stagnation",
+    miss: "relentless focus on the next milestone can crowd out presence in current relational moments",
+    rub: "creates pacing tension if the other person prioritizes contentment and rest over continuous striving"
+  },
+  "Creative": {
+    domain: "Mindset",
+    style: "exploratory",
+    pace: "fast",
+    tooltip: "Recombines concepts in original ways to generate alternatives beyond conventional templates.",
+    inside: "treats rules and constraints as raw material for novel expression and problem-solving",
+    outside: "appears inventive, non-linear, and capable of reframing stale problems",
+    miss: "generating possibilities faster than they can be executed can leave practical details unanchored",
+    rub: "clashes with strictly procedural thinkers who favor proven formulas over experimentation"
+  },
+  "Composed": {
+    domain: "Emotional Style",
+    style: "guarded",
+    pace: "slow",
+    tooltip: "Maintains steady outward poise and deliberate pacing even under acute interpersonal pressure.",
+    inside: "regulates physiological and emotional reactivity before choosing a response",
+    outside: "registers as unshakeable, grounding, and reassuring during volatility",
+    miss: "outward calm often conceals internal processing, leading others to assume you are unaffected",
+    rub: "can inadvertently escalate an expressive partner who mistakes calm restraint for lack of urgency"
+  },
+  "Skeptical": {
+    domain: "Logic",
+    style: "cognitive",
+    pace: "steady",
+    tooltip: "Withholds belief until claims survive scrutiny, testing motives and evidence rigorously.",
+    inside: "protects against manipulation and sloppy thinking by interrogating premises first",
+    outside: "appears discerning, unsentimental, and difficult to impress with surface charm",
+    miss: "default scrutiny can delay trust even when another person is operating in good faith",
+    rub: "feels like resistance to optimistic or intuitive people who lead with trust and enthusiasm"
+  },
+  "Loyal": {
+    domain: "Commitment",
+    style: "relational",
+    pace: "steady",
+    tooltip: "Anchors relationships in durability, principled allegiance, and steady presence across friction.",
+    inside: "treats commitment as an active obligation rather than a convenience dependent on mood",
+    outside: "registers as steadfast, protective, and rare in consistency",
+    miss: "deep loyalty can extend patience toward dynamics that no longer reciprocate the same care",
+    rub: "experiences sharp disillusionment if paired with someone who treats commitments fluidly"
+  },
+  "Assertive": {
+    domain: "Communication",
+    style: "assertive",
+    pace: "fast",
+    tooltip: "Articulates needs, boundaries, and convictions clearly without waiting for permission.",
+    inside: "claims space directly and addresses friction before resentment accumulates",
+    outside: "comes across as decisive, self-possessed, and unambiguous about where lines are drawn",
+    miss: "natural directness can dominate conversational space around more hesitant communicators",
+    rub: "can overwhelm conflict-avoidant personalities who rely on subtle hints rather than explicit negotiation"
+  },
+  "Contemplative": {
+    domain: "Mindset",
+    style: "internal",
+    pace: "slow",
+    tooltip: "Weighs implications, nuance, and long-term meaning before committing to words or action.",
+    inside: "creates space between stimulus and response to examine multiple angles thoroughly",
+    outside: "appears unhurried, thoughtful, and resistant to knee-jerk reactions",
+    miss: "extended deliberation can look like hesitation when fast decisions are demanded",
+    rub: "tests impatient or action-first partners who prefer rapid trial-and-error over reflection"
+  },
+  "Spontaneous": {
+    domain: "Focus & Energy",
+    style: "exploratory",
+    pace: "fast",
+    tooltip: "Acts cleanly on present-moment impulse, valuing aliveness and responsiveness over rigid scripting.",
+    inside: "trusts real-time instinct and keeps plans elastic enough to capture unexpected opportunities",
+    outside: "registers as energizing, unscripted, and capable of breaking heavy routines",
+    miss: "improvisation can register as unpredictability to people who rely on advance structure",
+    rub: "creates friction with disciplined planners when commitments shift at short notice"
+  },
+  "Pragmatic": {
+    domain: "Logic",
+    style: "structured",
+    pace: "steady",
+    tooltip: "Evaluates ideas by concrete utility, workability, and real-world consequences.",
+    inside: "cuts through theoretical abstraction to focus on what actually functions in practice",
+    outside: "appears grounded, efficient, and solutions-oriented under constraints",
+    miss: "dismissing ideas without immediate utility can truncate speculative or creative exploration",
+    rub: "can feel overly utilitarian to idealistic or abstract thinkers who enjoy theory for its own sake"
+  },
+  "Compassionate": {
+    domain: "Emotional Style",
+    style: "relational",
+    pace: "steady",
+    tooltip: "Responds to vulnerability or struggle with tangible generosity and protective concern.",
+    inside: "translates emotional awareness into practical support rather than passive sympathy",
+    outside: "registers as humane, attentive, and genuinely invested in others' wellbeing",
+    miss: "habitual caretaking can mask personal needs until quiet fatigue sets in",
+    rub: "can create asymmetry if the other person avoids vulnerability or resists receiving support"
+  },
+  "Mysterious": {
+    domain: "Social Style",
+    style: "guarded",
+    pace: "slow",
+    tooltip: "Projects an incomplete narrative, leaving motives and inner life deliberately unmapped.",
+    inside: "withholds automatic context, allowing others to observe without full access",
+    outside: "creates intrigue and curiosity because answers are never handed out cheaply",
+    miss: "unexplained silence invites other people to project their own assumptions onto the blank space",
+    rub: "can provoke anxiety or over-analysis in partners who equate transparency with safety"
+  },
+  "Resilient": {
+    domain: "Habits",
+    style: "structured",
+    pace: "steady",
+    tooltip: "Absorbs disruption and adversity without losing core coherence or forward capacity.",
+    inside: "recalibrates rapidly after setbacks, converting friction into durable endurance",
+    outside: "appears battle-tested, steady, and hard to permanently derail",
+    miss: "high tolerance for strain can normalize carrying heavy loads without asking for relief",
+    rub: "may unintentionally minimize difficulties that genuinely overwhelm less hardened temperaments"
+  },
+  "Eccentric": {
+    domain: "Autonomy",
+    style: "autonomous",
+    pace: "fast",
+    tooltip: "Operates by an idiosyncratic internal logic that disregards standard social templates.",
+    inside: "prioritizes authenticity and unusual preferences over fitting neatly into expected categories",
+    outside: "registers as memorable, unorthodox, and impervious to herd conformity",
+    miss: "distinctive habits can occasionally create unnecessary friction in conventional environments",
+    rub: "challenges status-conscious or highly traditional partners who prefer social predictability"
+  },
+  "Methodical": {
+    domain: "Habits",
+    style: "structured",
+    pace: "slow",
+    tooltip: "Builds mastery through sequence, precision, and deliberate step-by-step progression.",
+    inside: "reduces error and chaos by organizing complexity into repeatable systems",
+    outside: "appears thorough, deliberate, and structurally reliable",
+    miss: "attachment to process can slow responsiveness when improvisation is the only viable path",
+    rub: "clashes with spontaneous personalities who find step-by-step rigor suffocating"
+  },
+  "Passionate": {
+    domain: "Focus & Energy",
+    style: "assertive",
+    pace: "fast",
+    tooltip: "Invests wholehearted conviction and emotional vitality into people, ideas, and pursuits.",
+    inside: "operates with visible commitment, refusing half-hearted engagement in what matters",
+    outside: "comes across as vivid, catalytic, and unmistakably alive",
+    miss: "high emotional investment magnifies both enthusiasm and frustration when expectations clash",
+    rub: "can feel overwhelming to detached or understated personalities who regulate emotion tightly"
+  },
+  "Witty": {
+    domain: "Communication",
+    style: "cognitive",
+    pace: "fast",
+    tooltip: "Connects incongruous ideas rapidly into sharp humor, irony, and precise observations.",
+    inside: "uses linguistic speed and pattern-spotting to reframe tension and test rapport",
+    outside: "registers as quick-minded, incisive, and effortlessly engaging",
+    miss: "humor and irony can serve as armor that deflects direct emotional vulnerability",
+    rub: "can miss the mark with literal thinkers who take playful exaggeration at face value"
+  },
+  "Grounded": {
+    domain: "Logic",
+    style: "structured",
+    pace: "slow",
+    tooltip: "Remains anchored in tangible reality, proportion, and steady judgment amid emotional turbulence.",
+    inside: "filters exaggeration and panic through calm, proportional assessment",
+    outside: "acts as an emotional ballast that stabilizes surrounding dynamics",
+    miss: "strong realism can occasionally dampen speculative enthusiasm before ideas take flight",
+    rub: "balances high-intensity partners well, though it can feel understated next to dramatic temperaments"
+  },
+  "Tenacious": {
+    domain: "Focus & Energy",
+    style: "assertive",
+    pace: "fast",
+    tooltip: "Maintains grip on an objective long after resistance would cause others to disengage.",
+    inside: "treats obstacles as resistance to outlast rather than signals to retreat",
+    outside: "appears formidable, stubbornly committed, and nearly impossible to deter",
+    miss: "refusal to yield can prolong battles or investments past their optimal exit point",
+    rub: "creates deadlocks when paired with an equally unyielding or independent-minded temperament"
+  },
+  "Open-minded": {
+    domain: "Mindset",
+    style: "exploratory",
+    pace: "steady",
+    tooltip: "Holds convictions lightly enough to examine opposing frameworks without defensiveness.",
+    inside: "separates personal ego from current beliefs, updating views when better evidence appears",
+    outside: "registers as fair-minded, intellectually hospitable, and non-dogmatic",
+    miss: "entertaining every angle can delay taking a firm stand when decisiveness is required",
+    rub: "can frustrate rigid or dogmatic thinkers who expect immediate ideological alignment"
+  },
+  "Private": {
+    domain: "Social Style",
+    style: "guarded",
+    pace: "slow",
+    tooltip: "Maintains clear tiers of access, guarding personal interiority from casual exposure.",
+    inside: "treats self-revelation as a deliberate act of trust rather than a social default",
+    outside: "comes across as dignified, self-contained, and discerning about intimacy",
+    miss: "strict compartmentalization can make others feel held at arm's length even when trust exists",
+    rub: "requires mutual respect for boundaries rather than pressure for total transparency"
+  },
+  "Persevering": {
+    domain: "Habits",
+    style: "structured",
+    pace: "steady",
+    tooltip: "Sustains quiet, cumulative effort across prolonged difficulty without needing constant validation.",
+    inside: "absorbs slow progress patiently, relying on endurance over bursts of motivation",
+    outside: "registers as quietly unstoppable, reliable, and immune to quick discouragement",
+    miss: "enduring hardship silently can delay necessary course corrections or requests for help",
+    rub: "may struggle to understand temperaments that pivot quickly when immediate returns stall"
+  },
+  "Thoughtful": {
+    domain: "Emotional Style",
+    style: "relational",
+    pace: "slow",
+    tooltip: "Anticipates downstream consequences of words and choices on both ideas and people.",
+    inside: "integrates careful reasoning with awareness of how actions land on others",
+    outside: "appears attentive, intentional, and rarely careless in speech or behavior",
+    miss: "over-weighing interpersonal impact can occasionally blunt necessary directness",
+    rub: "can feel slowed down around blunt, fast-moving personalities who speak before filtering"
+  },
+  "Confident": {
+    domain: "Autonomy",
+    style: "assertive",
+    pace: "fast",
+    tooltip: "Operates from internal trust in personal judgment and capacity to navigate uncertainty.",
+    inside: "acts without chronic second-guessing or dependence on external reassurance",
+    outside: "projects assurance, decisiveness, and low interpersonal insecurity",
+    miss: "high self-trust can occasionally under-weight valid external warnings",
+    rub: "can read as dominance to more cautious or self-questioning temperaments"
+  },
+  "Imaginative": {
+    domain: "Mindset",
+    style: "exploratory",
+    pace: "steady",
+    tooltip: "Constructs vivid internal models and future scenarios beyond immediate sensory reality.",
+    inside: "navigates possibility spaces mentally, seeing what could exist rather than merely what is",
+    outside: "appears visionary, conceptually rich, and detached from mundane constraints",
+    miss: "rich internal scenarios can occasionally substitute for messy real-world testing",
+    rub: "requires translation when collaborating with strictly literal, concrete thinkers"
+  }
+};
+
+const traitNames = Object.keys(traits);
+let mySelf = [];
+let myView = [];
+
+function renderTraits(containerId, statusId, selectionKey) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = "";
+  traitNames.forEach(name => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "trait";
+    button.textContent = name;
+    button.setAttribute("data-tooltip", traits[name].tooltip);
+    button.setAttribute("aria-pressed", "false");
+
+    button.onclick = () => {
+      let arr = selectionKey === "self" ? mySelf : myView;
+      if (arr.includes(name)) {
+        arr = arr.filter(t => t !== name);
+      } else {
+        if (arr.length >= 2) arr.shift();
+        arr.push(name);
+      }
+      if (selectionKey === "self") mySelf = arr;
+      else myView = arr;
+
+      container.querySelectorAll(".trait").forEach(item => {
+        const active = arr.includes(item.textContent);
+        item.classList.toggle("selected", active);
+        item.setAttribute("aria-pressed", String(active));
+      });
+
+      const statusEl = document.getElementById(statusId);
+      statusEl.textContent = arr.length
+        ? `Selected (${arr.length}/2): ${arr.join(" & ")}`
+        : "Select 2 traits (0/2 selected).";
+
+      document.getElementById("continueButton").disabled = !(mySelf.length === 2 && myView.length === 2);
+    };
+    container.appendChild(button);
+  });
+}
+
+function populateDropdowns() {
+  ["theirSelf1", "theirSelf2", "theirView1", "theirView2"].forEach(id => {
+    const select = document.getElementById(id);
+    traitNames.forEach(name => {
+      const option = document.createElement("option");
+      option.value = name;
+      option.textContent = name;
+      select.appendChild(option);
+    });
+  });
+}
+
+function showExchange() {
+  document.getElementById("selectionSection").classList.add("hidden");
+  document.getElementById("exchangeSection").classList.remove("hidden");
+  window.scrollTo({top: 0, behavior: "smooth"});
+}
+
+
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, ch => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+  }[ch]));
+}
+
+function sharedItems(a, b, getter) {
+  return a.filter(x => b.some(y => getter(x) === getter(y)));
+}
+
+function synthesizePair(pair) {
+  const [firstName, secondName] = pair;
+  const first = traits[firstName];
+  const second = traits[secondName];
+
+  const firstInside = capitalize(first.inside);
+  const secondInside = capitalize(second.inside);
+  const firstOutside = capitalize(first.outside);
+  const secondOutside = capitalize(second.outside);
+
+  const sameDomain = first.domain === second.domain;
+  const sameStyle = first.style === second.style;
+  const samePace = first.pace === second.pace;
+
+  let relationship;
+  if (sameDomain && sameStyle) {
+    relationship = `The two qualities converge around ${first.domain.toLowerCase()} and share a ${first.style} orientation. In combination, they place sustained emphasis on the same broad part of the person's disposition, with each trait adding a different expression of that emphasis.`;
+  } else if (sameDomain) {
+    relationship = `Both qualities concern ${first.domain.toLowerCase()}, but they describe different ways of engaging with it. The profile therefore combines a shared area of concern with more than one behavioral approach.`;
+  } else if (sameStyle) {
+    relationship = `The qualities operate in different domains but share a ${first.style} orientation. This suggests that a similar approach may carry across separate parts of the person's life, rather than being confined to one subject.`;
+  } else {
+    relationship = `The qualities speak to different areas of disposition and use different behavioral orientations. Their combination suggests a profile with more than one operating tendency; the way those tendencies coexist will depend on the situation and on which quality is most relevant at the time.`;
+  }
+
+  const paceText = samePace
+    ? `Both traits carry a ${first.pace} pace classification. Within this framework, that indicates a similar broad rhythm across the two areas they describe.`
+    : `The traits carry different pace classifications (${first.pace} and ${second.pace}). This allows for variation within the profile: the person may engage quickly in one kind of situation and more deliberately in another.`;
+
+  const combinedMeaning = `Taken together, ${firstName.toLowerCase()} and ${secondName.toLowerCase()} describe a person who ${firstInside.charAt(0).toLowerCase() + firstInside.slice(1)} and ${second.inside}. The first quality contributes ${first.domain.toLowerCase()} emphasis; the second adds ${second.domain.toLowerCase()} emphasis. Neither trait should be read in isolation: the profile reflects the possibility that both tendencies are present and can influence the same decision or interaction.`;
+
+  const combinedExpression = `In outward interactions, the first quality may be noticed through behavior that ${first.outside}; the second may be noticed through behavior that ${second.outside}. Depending on context, one may be more visible than the other.`;
+
+  const combinedTradeoff = `The main consideration is how the two potential blind spots may compound or moderate one another. ${capitalize(first.miss)}. ${capitalize(second.miss)}. These are possibilities to examine against actual behavior, not conclusions about the person.`;
+
+  return {
+    names: pair.slice(),
+    domains: [...new Set([first.domain, second.domain])],
+    styles: [...new Set([first.style, second.style])],
+    paces: [first.pace, second.pace],
+    meaning: combinedMeaning,
+    relationship,
+    expression: combinedExpression,
+    tradeoff: combinedTradeoff,
+    friction: [first.rub, second.rub],
+    paceText
+  };
+}
+
+function profileAnalysis(pair, roleLabel, framing) {
+  const [a, b] = pair;
+  const A = traits[a], B = traits[b];
+  const profile = synthesizePair(pair);
+
+  return `
+    <div class="result-card">
+      <div class="result-label">${escapeHTML(roleLabel)}</div>
+      <div class="result-trait">${escapeHTML(a)} + ${escapeHTML(b)}</div>
+      <div><span class="tag-badge">${escapeHTML(A.domain)}</span><span class="tag-badge">${escapeHTML(B.domain)}</span></div>
+      <p>${escapeHTML(framing)}</p>
+      <div class="analysis"><strong>Combined profile:</strong> ${escapeHTML(profile.meaning)}</div>
+      <div class="analysis"><strong>How the qualities relate:</strong> ${escapeHTML(profile.relationship)}</div>
+      <div class="analysis"><strong>How the combination may register outwardly:</strong> ${escapeHTML(profile.expression)}</div>
+      <div class="analysis"><strong>Potential trade-offs within the profile:</strong> ${escapeHTML(profile.tradeoff)}</div>
+      <div class="muted">${escapeHTML(profile.paceText)} Pace is a framework descriptor, not a measured response speed or emotional reactivity.</div>
+    </div>`;
+}
+
+function analyzeMirror(selfPair, observedPair, subjectName, observerName) {
+  const exact = sharedItems(selfPair, observedPair, x => x);
+  const sameDomain = sharedItems(selfPair, observedPair, x => traits[x].domain);
+  const selfOnly = selfPair.filter(x => !observedPair.includes(x));
+  const observedOnly = observedPair.filter(x => !selfPair.includes(x));
+
+  let alignment;
+  if (exact.length === 2) {
+    alignment = `<strong>Direct agreement:</strong> Both selected traits match: <span class="highlight">${exact.join(" and ")}</span>. This is the clearest form of alignment available in this exercise. It indicates that the observer recognizes the same qualities the person chose for themselves; it does not establish that either person has a complete or objectively verified picture.`;
+  } else if (exact.length === 1) {
+    alignment = `<strong>One shared anchor:</strong> Both perspectives identify <span class="highlight">${exact[0]}</span>. The second selection differs, which gives the comparison useful detail: the person emphasizes ${selfOnly[0]}, while the observer gives greater weight to ${observedOnly[0]}.`;
+  } else if (sameDomain.length) {
+    const domains = [...new Set(sameDomain.map(x => traits[x].domain))];
+    alignment = `<strong>Related emphasis, different language:</strong> There is no exact trait match, but both selections touch the domain${domains.length > 1 ? "s" : ""} of ${domains.join(" and ")}. This may indicate that both people notice the same broad area of disposition while interpreting its expression differently. A shared domain is a thematic overlap, not proof of identical meaning.`;
+  } else {
+    alignment = `<strong>Different points of emphasis:</strong> The two perspectives do not share an exact trait or domain. ${subjectName} place emphasis on ${selfPair.join(" and ")}, while ${observerName} notice ${observedPair.join(" and ")}. The difference may reflect a gap between internal motivation and outward impact, different contexts, or simply different priorities in what each person notices.`;
+  }
+
+  const selfDescriptions = selfPair.map(t => `<strong>${escapeHTML(t)}:</strong> ${escapeHTML(capitalize(traits[t].inside))}`).join("; ");
+  const observedDescriptions = observedPair.map(t => `<strong>${escapeHTML(t)}:</strong> ${escapeHTML(capitalize(traits[t].outside))}`).join("; ");
+  const divergence = selfOnly.length && observedOnly.length
+    ? `The most useful point to examine is the contrast between ${selfOnly.join(" and ")} in the self-description and ${observedOnly.join(" and ")} in the outside observation. Ask what situations bring each quality forward, and whether the observer is seeing a behavior whose motive is less visible.`
+    : `Because the selections align closely, the next useful question is whether the shared traits appear consistently across different settings, or whether both people are responding to the same recent experiences.`;
+
+  return `<p><strong>${escapeHTML(subjectName)}'s self-description:</strong> ${selfDescriptions}.</p>
+    <p><strong>${escapeHTML(observerName)}'s observation:</strong> ${observedDescriptions}.</p>
+    <div class="analysis">${alignment}</div>
+    <div class="analysis"><strong>What the difference may reveal:</strong> ${divergence}</div>`;
+}
+
+function profileSignature(pair) {
+  const selected = pair.map(name => traits[name]);
+  const domains = [...new Set(selected.map(t => t.domain))];
+  const styles = [...new Set(selected.map(t => t.style))];
+  const paces = selected.map(t => t.pace);
+  return { selected, domains, styles, paces };
+}
+
+function analyzeInterpersonalMesh(mySelfPair, theirSelfPair, myViewPair, theirViewPair) {
+  const mine = synthesizePair(mySelfPair);
+  const theirs = synthesizePair(theirSelfPair);
+
+  const sharedDomains = mine.domains.filter(domain => theirs.domains.includes(domain));
+  const distinctMine = mine.domains.filter(domain => !theirs.domains.includes(domain));
+  const distinctTheirs = theirs.domains.filter(domain => !mine.domains.includes(domain));
+  const sharedStyles = mine.styles.filter(style => theirs.styles.includes(style));
+  const distinctMyStyles = mine.styles.filter(style => !theirs.styles.includes(style));
+  const distinctTheirStyles = theirs.styles.filter(style => !mine.styles.includes(style));
+
+  const myPaceCounts = mine.paces.reduce((acc, pace) => {
+    acc[pace] = (acc[pace] || 0) + 1;
+    return acc;
+  }, {});
+  const theirPaceCounts = theirs.paces.reduce((acc, pace) => {
+    acc[pace] = (acc[pace] || 0) + 1;
+    return acc;
+  }, {});
+  const paceKeys = [...new Set([...Object.keys(myPaceCounts), ...Object.keys(theirPaceCounts)])];
+  const paceSummary = counts => paceKeys.map(key => `${counts[key] || 0} ${key}`).join(", ");
+  const samePacePattern = paceKeys.every(key => (myPaceCounts[key] || 0) === (theirPaceCounts[key] || 0));
+
+  let interaction = `
+    <div class="analysis">
+      <strong>The two profiles as complete patterns:</strong>
+      <p><strong>Your profile (${escapeHTML(mySelfPair.join(" + "))}):</strong> ${escapeHTML(mine.meaning)} ${escapeHTML(mine.relationship)}</p>
+      <p><strong>The other person's profile (${escapeHTML(theirSelfPair.join(" + "))}):</strong> ${escapeHTML(theirs.meaning)} ${escapeHTML(theirs.relationship)}</p>
+      <p>The comparison is between these two combined patterns. The traits are not scored against one another individually, and neither person's profile is reduced to a single label.</p>
+    </div>`;
+
+  if (sharedDomains.length) {
+    interaction += `<div class="analysis"><strong>Common ground and distinct emphasis:</strong> Both profiles include ${sharedDomains.map(escapeHTML).join(" and ")}. This is a shared area of attention within the framework, although the actual qualities each person brings to it differ. ${distinctMine.length || distinctTheirs.length ? `Your profile also reaches into ${distinctMine.length ? distinctMine.map(escapeHTML).join(" and ") : "no additional domain"}, while the other person's profile also reaches into ${distinctTheirs.length ? distinctTheirs.map(escapeHTML).join(" and ") : "no additional domain"}. These additional emphases can broaden what each person notices or prioritizes in a shared situation.` : "The profiles occupy the same broad domains, while their individual trait combinations still give them different expressions."}</div>`;
+  } else {
+    interaction += `<div class="analysis"><strong>Different areas of emphasis:</strong> The profiles occupy different domains in this framework. Each person may therefore bring attention to aspects of a situation that the other does not instinctively foreground. This difference can expand the perspective available to both people, provided each takes the other's priorities seriously.</div>`;
+  }
+
+  if (sharedStyles.length) {
+    interaction += `<div class="analysis"><strong>Where your approaches converge:</strong> Both profiles contain a ${sharedStyles.map(escapeHTML).join(" and ")} orientation. This offers a point of similarity in how the two people may approach situations. Your profile also contains ${distinctMyStyles.length ? distinctMyStyles.map(escapeHTML).join(" and ") : "no additional style classification"}; the other person's contains ${distinctTheirStyles.length ? distinctTheirStyles.map(escapeHTML).join(" and ") : "no additional style classification"}. These are tendencies represented in each complete profile, not exclusive descriptions of either person.</div>`;
+  } else {
+    interaction += `<div class="analysis"><strong>Different operating approaches:</strong> The profiles do not share a style classification. Their combined descriptions suggest different habitual ways of engaging with situations. The practical issue is how those approaches interact when both people are responding to the same event or decision.</div>`;
+  }
+
+  const paceText = samePacePattern
+    ? `Both profiles have the same pace distribution (${paceSummary(myPaceCounts)}). Within this framework, that suggests a broadly similar rhythm, although the traits determine where that rhythm is expressed.`
+    : `Your profile has a pace distribution of ${paceSummary(myPaceCounts)}; the other person's has ${paceSummary(theirPaceCounts)}. This suggests a difference in the rhythm represented by the two combinations. It may influence when each person prefers to act, reflect, or revisit a subject. It does not measure commitment, care, or emotional depth.`;
+  interaction += `<div class="analysis"><strong>Rhythm and timing:</strong> ${escapeHTML(paceText)}</div>`;
+
+  interaction += `<div class="analysis"><strong>Where the combined profiles may create tension:</strong>
+    <p><strong>Your profile's possible pressure points:</strong> ${escapeHTML(mine.friction.map(capitalize).join(" "))}</p>
+    <p><strong>The other person's possible pressure points:</strong> ${escapeHTML(theirs.friction.map(capitalize).join(" "))}</p>
+    <p>These descriptions identify possible sensitivities within each person's profile. The interpersonal question is how the two sets of tendencies meet in practice: whether one person's instinct places pressure on an area where the other is more sensitive, and whether either person can recognize that effect without assuming intent.</p>
+  </div>`;
+
+  const yourRecognition = mySelfPair.filter(t => theirViewPair.includes(t));
+  const theirRecognition = theirSelfPair.filter(t => myViewPair.includes(t));
+  const recognitionText = [];
+  if (yourRecognition.length) recognitionText.push(`The other person independently selected ${yourRecognition.join(" and ")} from your self-description.`);
+  if (theirRecognition.length) recognitionText.push(`You independently selected ${theirRecognition.join(" and ")} from the other person's self-description.`);
+  interaction += `<div class="analysis"><strong>Mutual recognition:</strong> ${recognitionText.length ? recognitionText.map(escapeHTML).join(" ") : "There is no exact trait overlap between either self-description and the corresponding outside observation. The difference is worth exploring through specific examples; it does not establish that either person has misunderstood the other."}</div>`;
+
+  interaction += `<div class="analysis"><strong>Practical interpretation:</strong> The most revealing moments will be situations in which both profiles are active at once. Compare what each person pays attention to, how each responds, what each needs from the interaction, and what behavior the other person actually experiences. That is where the combined profiles can be tested against lived experience rather than treated as fixed conclusions.</div>`;
+
+  return interaction;
+}
+
+function generateAnalysis() {
+  const ts1 = document.getElementById("theirSelf1").value;
+  const ts2 = document.getElementById("theirSelf2").value;
+  const tv1 = document.getElementById("theirView1").value;
+  const tv2 = document.getElementById("theirView2").value;
+  const error = document.getElementById("exchangeError");
+
+  if (!ts1 || !ts2 || !tv1 || !tv2) {
+    error.textContent = "Please select all four traits before continuing.";
+    return;
+  }
+  if (ts1 === ts2 || tv1 === tv2) {
+    error.textContent = "Each pair needs two different traits.";
+    return;
+  }
+  error.textContent = "";
+
+  const theirSelf = [ts1, ts2];
+  const theirView = [tv1, tv2];
+
+  document.getElementById("fourPerspectives").innerHTML =
+    profileAnalysis(mySelf, "Perspective 01 · Your Internal Anchor",
+      "The qualities you selected as most representative of your own internal disposition.") +
+    profileAnalysis(theirView, "Perspective 02 · How You Register to Them",
+      "The qualities the other person selected as most noticeable in you.") +
+    profileAnalysis(theirSelf, "Perspective 03 · Their Internal Anchor",
+      "The qualities the other person selected as most representative of their own disposition.") +
+    profileAnalysis(myView, "Perspective 04 · How They Register to You",
+      "The qualities you selected as most noticeable in the other person.");
+
+  document.getElementById("comparisonAnalysis").innerHTML =
+    `<h3>Your Self-Concept vs. Their Observation of You</h3>` +
+    analyzeMirror(mySelf, theirView, "You", "They") +
+    `<div class="divider"></div>` +
+    `<h3>Their Self-Concept vs. Your Observation of Them</h3>` +
+    analyzeMirror(theirSelf, myView, "They", "You");
+
+  document.getElementById("relationalDynamics").innerHTML =
+    analyzeInterpersonalMesh(mySelf, theirSelf, myView, theirView);
+
+  const allSelections = [
+    ...mySelf.map(t => ({trait:t, role:"Your self-description"})),
+    ...theirView.map(t => ({trait:t, role:"Their view of you"})),
+    ...theirSelf.map(t => ({trait:t, role:"Their self-description"})),
+    ...myView.map(t => ({trait:t, role:"Your view of them"}))
+  ];
+  const counts = {};
+  allSelections.forEach(x => {
+    if (!counts[x.trait]) counts[x.trait] = [];
+    counts[x.trait].push(x.role);
+  });
+  const recurring = Object.entries(counts).filter(([,roles]) => roles.length > 1);
+
+  let overallHTML = `<div class="analysis"><strong>Shared and recurring signals:</strong> `;
+  if (recurring.length) {
+    overallHTML += recurring.map(([trait,roles]) =>
+      `<p><span class="highlight">${escapeHTML(trait)}</span> appears in ${roles.map(escapeHTML).join(" and ")}. The significance depends on which perspectives selected it: repetition across a self-description and an outside observation indicates direct recognition, while repetition in other combinations may reflect a shared preference or emphasis.</p>`
+    ).join("");
+  } else {
+    overallHTML += `No trait was selected more than once. The four perspectives therefore offer eight distinct signals. This points to differentiated descriptions in this exercise, not necessarily to psychological distance or incompatibility.`;
+  }
+  overallHTML += `</div>`;
+
+  const yourAlignment = mySelf.filter(t => theirView.includes(t)).length;
+  const theirAlignment = theirSelf.filter(t => myView.includes(t)).length;
+  overallHTML += `<div class="analysis"><strong>Overall perceptual alignment:</strong> The other person's view of you matches ${yourAlignment} of your 2 self-selected traits. Your view of them matches ${theirAlignment} of their 2 self-selected traits. These are simple selection overlaps, not accuracy scores. They show where your descriptions converge and where further conversation may be useful.</div>`;
+
+  overallHTML += `<div class="analysis"><strong>Most useful conversation:</strong> Start with the traits that did not match. Ask what specific behavior led each person to choose that word, what the trait means to them, and whether it appears consistently or only in certain situations. Then compare the explanation with the intention behind the behavior. This turns a difference in labels into a concrete discussion about how each person experiences and affects the other.</div>`;
+
+  overallHTML += `<p class="muted">Interpretive note: This exercise analyzes four self-reported and observed trait pairs. Its conclusions are reflective hypotheses based on the selected descriptions, not clinical findings, fixed personality measurements, or proof of another person's motives.</p>`;
+  document.getElementById("overallAnalysis").innerHTML = overallHTML;
+
+  document.getElementById("exchangeSection").classList.add("hidden");
+  document.getElementById("resultsSection").classList.remove("hidden");
+  window.scrollTo({top: 0, behavior: "smooth"});
+}
+
+function restart() {
+  mySelf = [];
+  myView = [];
+  ["theirSelf1", "theirSelf2", "theirView1", "theirView2"].forEach(id => {
+    document.getElementById(id).value = "";
+  });
+  document.getElementById("selectionSection").classList.remove("hidden");
+  document.getElementById("exchangeSection").classList.add("hidden");
+  document.getElementById("resultsSection").classList.add("hidden");
+  document.getElementById("selfStatus").textContent = "Select 2 traits (0/2 selected).";
+  document.getElementById("otherStatus").textContent = "Select 2 traits (0/2 selected).";
+  document.getElementById("continueButton").disabled = true;
+  renderTraits("selfTraits", "selfStatus", "self");
+  renderTraits("otherTraits", "otherStatus", "other");
+  window.scrollTo({top: 0, behavior: "smooth"});
+}
+
+renderTraits("selfTraits", "selfStatus", "self");
+renderTraits("otherTraits", "otherStatus", "other");
+populateDropdowns();
+</script>
+</body>
+</html>
