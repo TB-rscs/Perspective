@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Two Perspectives</title>
+<style>
+:root {
+  --bg: #08080d;
+  --panel: #11111c;
+  --panel2: #171725;
+  --text: #f3f1ff;
+  --muted: #aaa8bf;
+  --pink: #ff4fd8;
+  --cyan: #42eaff;
+  --purple: #a879ff;
+  --green: #7dffbd;
+  --border: #343044;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 24px 15px 50px;
+  background:
+    radial-gradient(ellipse at 10% 0%, #24102d 0, transparent 35%),
+    radial-gradient(ellipse at 95% 15%, #101f35 0, transparent 32%),
+    var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.6;
+}
+main { max-width: 820px; margin: auto; }
+header { text-align: center; margin: 15px 0 30px; }
+h1 {
+  margin: 0;
+  font-size: clamp(2.3rem, 8vw, 4rem);
+  letter-spacing: 2px;
+  line-height: 1.1;
+  color: white;
+  text-shadow: 0 0 12px #ff4fd8, 0 0 30px #a879ff;
+}
+.subtitle {
+  color: var(--muted);
+  margin-top: 12px;
+  font-size: 1rem;
+}
+.panel {
+  background: linear-gradient(145deg, #151522, #0e0e17);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  margin: 18px 0;
+  box-shadow: 0 8px 30px #0008;
+}
+h2 {
+  font-size: 1.3rem;
+  margin: 0 0 8px;
+  color: var(--cyan);
+}
+h3 { color: var(--pink); margin: 22px 0 10px; font-size: 1.1rem; }
+p { margin: 8px 0 14px; }
+.muted { color: var(--muted); font-size: .94rem; }
+.step {
+  display: inline-block;
+  color: var(--pink);
+  font-size: .75rem;
+  letter-spacing: 2px;
+  font-weight: bold;
+  margin-bottom: 7px;
+}
+.trait-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+.trait {
+  position: relative;
+  min-height: 48px;
+  padding: 12px 10px;
+  border: 1px solid #39354b;
+  border-radius: 9px;
+  background: #171724;
+  color: var(--text);
+  text-align: center;
+  cursor: pointer;
+  font-size: .9rem;
+  transition: .15s ease;
+}
+.trait:hover {
+  border-color: var(--cyan);
+  box-shadow: 0 0 12px #42eaff33;
+  z-index: 10;
+}
+.trait.selected {
+  border-color: var(--pink);
+  background: #351b38;
+  color: white;
+  box-shadow: 0 0 13px #ff4fd855;
+}
+.trait.selected::after {
+  content: "✓";
+  color: var(--pink);
+  font-weight: bold;
+  margin-left: 7px;
+}
+/* Hover Tooltip Styling */
+.trait::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%) translateY(6px);
+  width: 240px;
+  padding: 10px 12px;
+  background: #1f1d30;
+  color: var(--text);
+  border: 1px solid var(--cyan);
+  border-radius: 8px;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  text-align: left;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.9);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  z-index: 100;
+}
+.trait:hover::before,
+.trait:focus-visible::before {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+.trait:focus-visible, button:focus-visible, select:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+}
+.selection-status {
+  min-height: 24px;
+  color: var(--green);
+  font-size: .88rem;
+  margin-top: 12px;
+}
+button {
+  border: 0;
+  border-radius: 9px;
+  padding: 13px 18px;
+  margin-top: 14px;
+  font-size: .92rem;
+  font-weight: bold;
+  letter-spacing: .5px;
+  cursor: pointer;
+  color: #08080d;
+  background: linear-gradient(100deg, var(--cyan), var(--purple));
+}
+button:hover { filter: brightness(1.12); }
+button.secondary {
+  color: var(--text);
+  background: #292638;
+  border: 1px solid #514965;
+}
+button:disabled { opacity: .35; cursor: not-allowed; }
+.select-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+@media (max-width: 600px) {
+  .select-row { grid-template-columns: 1fr; }
+}
+select {
+  width: 100%;
+  margin: 6px 0 0;
+  padding: 12px;
+  border-radius: 8px;
+  color: var(--text);
+  background: #191927;
+  border: 1px solid #48415d;
+  font-size: .95rem;
+}
+label {
+  display: block;
+  color: var(--cyan);
+  font-size: .9rem;
+  font-weight: bold;
+  margin-top: 14px;
+}
+.hidden { display: none !important; }
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #625174, transparent);
+  margin: 24px 0;
+}
+.result-card {
+  background: #171725;
+  border: 1px solid #38334b;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 14px 0;
+}
+.result-card h3 { margin-top: 0; }
+.result-label {
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  font-size: .72rem;
+  font-weight: bold;
+}
+.result-trait {
+  font-size: 1.35rem;
+  font-weight: bold;
+  color: var(--pink);
+  margin: 4px 0 10px;
+}
+.analysis {
+  border-left: 3px solid var(--purple);
+  padding: 4px 0 4px 14px;
+  margin: 12px 0;
+  font-size: .95rem;
+}
+.analysis strong { color: var(--cyan); }
+.highlight {
+  color: var(--green);
+  font-weight: bold;
+}
+.tag-badge {
+  display: inline-block;
+  background: #252038;
+  border: 1px solid #4e4370;
+  color: var(--cyan);
+  font-size: .75rem;
+  padding: 3px 9px;
+  border-radius: 20px;
+  margin: 0 6px 8px 0;
+}
+.result-heading {
+  text-align: center;
+  padding: 15px 0 5px;
+}
+.result-heading h2 {
+  color: var(--pink);
+  font-size: 1.7rem;
+}
+.footer {
+  text-align: center;
+  color: #77748a;
+  font-size: .78rem;
+  margin-top: 30px;
+}
+@media print {
+  body {
+    background: #08080d !important;
+    color: white !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .no-print { display: none !important; }
+  .panel, .result-card { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>TWO<br>PERSPECTIVES</h1>
+  <div class="subtitle">Two people. Eight selections. A behavioral synthesis of self-concept, external projection, and relational dynamics.</div>
+</header>
+
+<section id="selectionSection">
+  <div class="panel">
+    <span class="step">ROUND 01</span>
+    <h2>How do you conceptualize yourself?</h2>
+    <p class="muted">Select <strong>two</strong> traits that anchor your internal disposition. Hover over any trait to inspect its behavioral definition.</p>
+    <div class="trait-grid" id="selfTraits"></div>
+    <div class="selection-status" id="selfStatus">Select 2 traits (0/2 selected).</div>
+  </div>
+
+  <div class="panel">
+    <span class="step">ROUND 02</span>
+    <h2>How do you perceive them?</h2>
+    <p class="muted">Select <strong>two</strong> traits that most define how their nature registers to you.</p>
+    <div class="trait-grid" id="otherTraits"></div>
+    <div class="selection-status" id="otherStatus">Select 2 traits (0/2 selected).</div>
+    <button id="continueButton" disabled onclick="showExchange()">Proceed to Synthesis</button>
+  </div>
+</section>
+
+<section id="exchangeSection" class="hidden">
+  <div class="panel">
+    <span class="step">DATA EXCHANGE</span>
+    <h2>Cross-Reference Selections</h2>
+    <p>Complete Rounds 01 and 02 independently before comparing notes, then input the four traits the other person selected.</p>
+    <div class="divider"></div>
+    <label>Which two traits did they select for themselves?</label>
+    <div class="select-row">
+      <select id="theirSelf1"><option value="">First self-trait</option></select>
+      <select id="theirSelf2"><option value="">Second self-trait</option></select>
+    </div>
+
+    <label>Which two traits did they select for you?</label>
+    <div class="select-row">
+      <select id="theirView1"><option value="">First trait for you</option></select>
+      <select id="theirView2"><option value="">Second trait for you</option></select>
+    </div>
+
+    <button onclick="generateAnalysis()">Generate Behavioral Synthesis</button>
+    <div id="exchangeError" class="selection-status" style="color:var(--pink);"></div>
+  </div>
+</section>
+
+<section id="resultsSection" class="hidden">
+  <div class="result-heading">
+    <span class="step">PSYCHOLOGICAL SYNTHESIS</span>
+    <h2>Perceptual Architecture</h2>
+    <p class="muted">An examination of internal identity, external observation, and how both temperaments interact.</p>
+  </div>
+
+  <div id="fourPerspectives"></div>
+
+  <div class="panel">
+    <h2>I. Perceptual Alignment &amp; Blind Spots</h2>
+    <p class="muted">Comparing internal self-concept against external behavioral observation.</p>
+    <div id="comparisonAnalysis"></div>
+  </div>
+
+  <div class="panel">
+    <h2>II. Interpersonal Chemistry &amp; Relational Friction</h2>
+    <p class="muted">How your respective dispositions mesh, reinforce, or challenge one another in practice.</p>
+    <div id="relationalDynamics"></div>
+  </div>
+
+  <div class="panel">
+    <h2>III. Structural Synthesis</h2>
+    <div id="overallAnalysis"></div>
+  </div>
+
+  <div class="no-print" style="text-align:center">
+    <button onclick="window.print()">Export / Print Synthesis</button>
+    <button class="secondary" onclick="restart()">Reset Matrix</button>
+  </div>
+  <p class="footer">Structured behavioral reflection informed by Five-Factor and interpersonal circumplex theory. Not a clinical diagnostic instrument.</p>
+</section>
+
+</main>
+
+<script>
+const traits = {
+  "Intense": {
+    domain: "Affective Depth",
+    orientation: "internal",
+    energy: "high",
+    tooltip: "Processes emotion, focus, and commitment with high psychological force and little surface neutrality.",
+    mechanism: "channels high cognitive and emotional voltage into ideas, loyalty, and personal convictions",
+    externalRead: "registers to others as commanding focus, seriousness, or emotional gravity even when few words are spoken",
+    blindSpot: "internal urgency can feel ordinary from the inside while reading as formidable or overwhelming from the outside",
+    friction: "requires clear decompression boundaries so sustained intensity does not exhaust quieter or more detached temperaments"
+  },
+  "Curious": {
+    domain: "Cognitive Openness",
+    orientation: "exploratory",
+    energy: "high",
+    tooltip: "Driven to interrogate mechanics, motives, and underlying systems rather than accepting surface explanations.",
+    mechanism: "treats ambiguity as an invitation to investigate, connect variables, and ask second-order questions",
+    externalRead: "comes across as mentally restless, engaged, and unwilling to settle for conventional answers",
+    blindSpot: "probing questions meant purely to understand can occasionally feel like cross-examination to guarded people",
+    friction: "may push for exploration and complexity when another person simply wants closure or practical action"
+  },
+  "Detached": {
+    domain: "Affective Regulation",
+    orientation: "guarded",
+    energy: "low",
+    tooltip: "Maintains deliberate psychological distance, observing dynamics objectively without immediate emotional entanglement.",
+    mechanism: "separates observation from emotional reactivity, preserving autonomy and clarity under pressure",
+    externalRead: "presents as composed, self-contained, and difficult to rattle or pull into interpersonal drama",
+    blindSpot: "emotional containment intended as neutrality is frequently misread by expressive partners as indifference",
+    friction: "can create an intimacy gap if the other person relies on visible emotional reciprocity for reassurance"
+  },
+  "Independent": {
+    domain: "Self-Determination",
+    orientation: "autonomous",
+    energy: "measured",
+    tooltip: "Anchors decisions in internal standards and self-reliance rather than external consensus or validation.",
+    mechanism: "protects agency, filters outside influence carefully, and functions comfortably without constant consensus",
+    externalRead: "appears self-directed, bounded, and resistant to subtle social pressure or micromanagement",
+    blindSpot: "habitual self-sufficiency can inadvertently signal that another person's support or input is unnecessary",
+    friction: "clashes with dynamics that equate closeness with constant availability or merged decision-making"
+  },
+  "Introspective": {
+    domain: "Metacognition",
+    orientation: "internal",
+    energy: "low",
+    tooltip: "Continuously audits internal motives, emotional patterns, and the deeper meaning behind experiences.",
+    mechanism: "turns attention inward to trace cause-and-effect in personal reactions and interpersonal history",
+    externalRead: "reads as reflective, deliberate, and rarely impulsive about personal motives",
+    blindSpot: "extended internal processing can delay outward communication, leaving others guessing what was concluded",
+    friction: "can stall in over-interpretation when paired with someone who prefers immediate, unvarnished action"
+  },
+  "Analytical": {
+    domain: "Structural Reasoning",
+    orientation: "cognitive",
+    energy: "measured",
+    tooltip: "Deconstructs complexity into evidence, patterns, and logical architecture before forming conclusions.",
+    mechanism: "evaluates claims systematically, testing coherence and separating signal from emotional noise",
+    externalRead: "registers as lucid, structured, and difficult to persuade without coherent reasoning",
+    blindSpot: "prioritizing logical precision during emotionally charged moments can feel invalidating to feeling-first people",
+    friction: "may dissect a problem's structure when the other person is primarily seeking emotional attunement"
+  },
+  "Observant": {
+    domain: "Perceptual Acuity",
+    orientation: "cognitive",
+    energy: "low",
+    tooltip: "Tracks micro-shifts in tone, behavior, and environment that escape casual attention.",
+    mechanism: "collects granular behavioral data quietly, building accurate mental models over time",
+    externalRead: "appears quietly aware, hard to fool, and tuned into subtext rather than mere words",
+    blindSpot: "noticing every subtle shift can lead to reading significance into minor, unintentional fluctuations",
+    friction: "creates asymmetry when one person notices every behavioral nuance while the other operates unselfconsciously"
+  },
+  "Intuitive": {
+    domain: "Pattern Synthesis",
+    orientation: "exploratory",
+    energy: "measured",
+    tooltip: "Synthesizes disparate cues into rapid, holistic impressions before conscious step-by-step proof.",
+    mechanism: "recognizes underlying trajectories and unspoken dynamics through rapid associative leaps",
+    externalRead: "comes across as insightful, quick to grasp subtext, and unbothered by surface distractions",
+    blindSpot: "strong pattern recognition can occasionally harden into certainty before concrete evidence confirms it",
+    friction: "can frustrate strictly linear thinkers who require step-by-step justification for every conclusion"
+  },
+  "Reserved": {
+    domain: "Social Economy",
+    orientation: "guarded",
+    energy: "low",
+    tooltip: "Exercises deliberate restraint over self-disclosure, sharing thoughts and vulnerability selectively.",
+    mechanism: "regulates outward expression carefully, speaking with economy rather than reflexive openness",
+    externalRead: "registers as poised, measured, and selective about who earns genuine access",
+    blindSpot: "restraint is often mistaken for aloofness or judgment rather than simple preference for deliberate pacing",
+    friction: "requires patience from more transparent personalities who build trust through rapid verbal sharing"
+  },
+  "Adventurous": {
+    domain: "Experiential Drive",
+    orientation: "exploratory",
+    energy: "high",
+    tooltip: "Seeks unfamiliar territory, calculated risk, and experiences that disrupt predictable routine.",
+    mechanism: "generates momentum through novelty, experimentation, and willingness to test boundaries",
+    externalRead: "appears dynamic, catalytic, and restless inside overly rigid or repetitive structures",
+    blindSpot: "constant appetite for novelty can look like restlessness or disregard for established stability",
+    friction: "creates tension with security-oriented temperaments who rely on predictability to feel grounded"
+  },
+  "Perceptive": {
+    domain: "Psychological Insight",
+    orientation: "cognitive",
+    energy: "measured",
+    tooltip: "Reads between the lines of human behavior, grasping unspoken motives and relational undercurrents.",
+    mechanism: "connects behavioral cues to underlying psychological drivers with sharp accuracy",
+    externalRead: "feels disarmingly hard to hide behind masks around, as subtext rarely goes unnoticed",
+    blindSpot: "seeing beneath the surface can make it difficult to take casual interactions at simple face value",
+    friction: "can trigger defensiveness in people who prefer not to have their unspoken motives noticed"
+  },
+  "Empathetic": {
+    domain: "Affective Resonance",
+    orientation: "relational",
+    energy: "measured",
+    tooltip: "Attunes closely to the emotional reality and unspoken vulnerability of other people.",
+    mechanism: "models another person's internal state accurately, responding with sensitivity to emotional impact",
+    externalRead: "registers as emotionally intelligent, receptive, and safe to be candid around",
+    blindSpot: "absorbing surrounding emotional tension can blur the boundary between another's distress and one's own",
+    friction: "can become over-extended when paired with highly guarded or emotionally self-contained partners"
+  },
+  "Independent-minded": {
+    domain: "Intellectual Autonomy",
+    orientation: "autonomous",
+    energy: "measured",
+    tooltip: "Constructs beliefs from first principles rather than defaulting to group consensus or authority.",
+    mechanism: "interrogates inherited assumptions and holds unconventional positions without social anxiety",
+    externalRead: "appears intellectually sovereign, candid, and unimpressed by social conformity",
+    blindSpot: "habitual skepticism toward consensus can occasionally read as contrarianism for its own sake",
+    friction: "sparks lively debate or friction with people who value harmony and shared convention over dissent"
+  },
+  "Candid": {
+    domain: "Direct Communication",
+    orientation: "assertive",
+    energy: "high",
+    tooltip: "Values unvarnished clarity and truth over diplomatic cushioning or polite ambiguity.",
+    mechanism: "eliminates subtext by stating observations, boundaries, and disagreements directly",
+    externalRead: "comes across as refreshing, unambiguous, and trustworthy because nothing is hidden behind politeness",
+    blindSpot: "precision without softening can land as bluntness when the listener expects gradual framing",
+    friction: "tests indirect communicators who interpret direct critique as interpersonal hostility"
+  },
+  "Disciplined": {
+    domain: "Executive Control",
+    orientation: "structured",
+    energy: "measured",
+    tooltip: "Subordinates impulse to structure, sustaining consistent execution regardless of fluctuating mood.",
+    mechanism: "builds reliability through deliberate habits, standards, and follow-through",
+    externalRead: "registers as dependable, self-governed, and serious about commitments",
+    blindSpot: "high internal standards can subtly turn into impatience with more fluid or improvisational styles",
+    friction: "chafes against spontaneous or unstructured approaches that disrupt established plans"
+  },
+  "Adaptable": {
+    domain: "Cognitive Flexibility",
+    orientation: "exploratory",
+    energy: "measured",
+    tooltip: "Recalibrates strategy and expectations fluidly when conditions or priorities shift.",
+    mechanism: "avoids rigid attachment to a single script, pivoting smoothly as new information emerges",
+    externalRead: "appears resilient, pragmatic under change, and low-friction in unpredictable environments",
+    blindSpot: "excessive flexibility can obscure core personal preferences, making it harder for others to read your stance",
+    friction: "can frustrate methodical partners who expect fixed commitments and advance predictability"
+  },
+  "Ambitious": {
+    domain: "Achievement Drive",
+    orientation: "assertive",
+    energy: "high",
+    tooltip: "Orients energy toward mastery, upward trajectory, and tangible accomplishment.",
+    mechanism: "converts dissatisfaction with the status quo into structured pursuit of higher benchmarks",
+    externalRead: "projects drive, forward momentum, and intolerance for stagnation",
+    blindSpot: "relentless focus on the next milestone can crowd out presence in current relational moments",
+    friction: "creates pacing tension if the other person prioritizes contentment and rest over continuous striving"
+  },
+  "Creative": {
+    domain: "Generative Synthesis",
+    orientation: "exploratory",
+    energy: "high",
+    tooltip: "Recombines concepts in original ways to generate alternatives beyond conventional templates.",
+    mechanism: "treats rules and constraints as raw material for novel expression and problem-solving",
+    externalRead: "appears inventive, non-linear, and capable of reframing stale problems",
+    blindSpot: "generating possibilities faster than they can be executed can leave practical details unanchored",
+    friction: "clashes with strictly procedural thinkers who favor proven formulas over experimentation"
+  },
+  "Composed": {
+    domain: "Emotional Equilibrium",
+    orientation: "guarded",
+    energy: "low",
+    tooltip: "Maintains steady outward poise and deliberate pacing even under acute interpersonal pressure.",
+    mechanism: "regulates physiological and emotional reactivity before choosing a response",
+    externalRead: "registers as unshakeable, grounding, and reassuring during volatility",
+    blindSpot: "outward calm often conceals internal processing, leading others to assume you are unaffected",
+    friction: "can inadvertently escalate an expressive partner who mistakes calm restraint for lack of urgency"
+  },
+  "Skeptical": {
+    domain: "Critical Verification",
+    orientation: "cognitive",
+    energy: "measured",
+    tooltip: "Withholds belief until claims survive scrutiny, testing motives and evidence rigorously.",
+    mechanism: "protects against manipulation and sloppy thinking by interrogating premises first",
+    externalRead: "appears discerning, unsentimental, and difficult to impress with surface charm",
+    blindSpot: "default scrutiny can delay trust even when another person is operating in good faith",
+    friction: "feels like resistance to optimistic or intuitive people who lead with trust and enthusiasm"
+  },
+  "Loyal": {
+    domain: "Relational Continuity",
+    orientation: "relational",
+    energy: "measured",
+    tooltip: "Anchors relationships in durability, principled allegiance, and steady presence across friction.",
+    mechanism: "treats commitment as an active obligation rather than a convenience dependent on mood",
+    externalRead: "registers as steadfast, protective, and rare in consistency",
+    blindSpot: "deep loyalty can extend patience toward dynamics that no longer reciprocate the same care",
+    friction: "experiences sharp disillusionment if paired with someone who treats commitments fluidly"
+  },
+  "Assertive": {
+    domain: "Interpersonal Agency",
+    orientation: "assertive",
+    energy: "high",
+    tooltip: "Articulates needs, boundaries, and convictions clearly without waiting for permission.",
+    mechanism: "claims space directly and addresses friction before resentment accumulates",
+    externalRead: "comes across as decisive, self-possessed, and unambiguous about where lines are drawn",
+    blindSpot: "natural directness can dominate conversational space around more hesitant communicators",
+    friction: "can overwhelm conflict-avoidant personalities who rely on subtle hints rather than explicit negotiation"
+  },
+  "Contemplative": {
+    domain: "Deliberative Depth",
+    orientation: "internal",
+    energy: "low",
+    tooltip: "Weighs implications, nuance, and long-term meaning before committing to words or action.",
+    mechanism: "creates space between stimulus and response to examine multiple angles thoroughly",
+    externalRead: "appears unhurried, thoughtful, and resistant to knee-jerk reactions",
+    blindSpot: "extended deliberation can look like hesitation when fast decisions are demanded",
+    friction: "tests impatient or action-first partners who prefer rapid trial-and-error over reflection"
+  },
+  "Spontaneous": {
+    domain: "Immediate Responsiveness",
+    orientation: "exploratory",
+    energy: "high",
+    tooltip: "Acts cleanly on present-moment impulse, valuing aliveness and responsiveness over rigid scripting.",
+    mechanism: "trusts real-time instinct and keeps plans elastic enough to capture unexpected opportunities",
+    externalRead: "registers as energizing, unscripted, and capable of breaking heavy routines",
+    blindSpot: "improvisation can register as unpredictability to people who rely on advance structure",
+    friction: "creates friction with disciplined planners when commitments shift at short notice"
+  },
+  "Pragmatic": {
+    domain: "Applied Realism",
+    orientation: "structured",
+    energy: "measured",
+    tooltip: "Evaluates ideas by concrete utility, workability, and real-world consequences.",
+    mechanism: "cuts through theoretical abstraction to focus on what actually functions in practice",
+    externalRead: "appears grounded, efficient, and solutions-oriented under constraints",
+    blindSpot: "dismissing ideas without immediate utility can truncate speculative or creative exploration",
+    friction: "can feel overly utilitarian to idealistic or abstract thinkers who enjoy theory for its own sake"
+  },
+  "Compassionate": {
+    domain: "Active Care",
+    orientation: "relational",
+    energy: "measured",
+    tooltip: "Responds to vulnerability or struggle with tangible generosity and protective concern.",
+    mechanism: "translates emotional awareness into practical support rather than passive sympathy",
+    externalRead: "registers as humane, attentive, and genuinely invested in others' wellbeing",
+    blindSpot: "habitual caretaking can mask personal needs until quiet fatigue sets in",
+    friction: "can create asymmetry if the other person avoids vulnerability or resists receiving support"
+  },
+  "Mysterious": {
+    domain: "Selective Opacity",
+    orientation: "guarded",
+    energy: "low",
+    tooltip: "Projects an incomplete narrative, leaving motives and inner life deliberately unmapped.",
+    mechanism: "withholds automatic context, allowing others to observe without full access",
+    externalRead: "creates intrigue and magnetic curiosity because answers are never handed out cheaply",
+    blindSpot: "unexplained silence invites other people to project their own assumptions onto the blank space",
+    friction: "can provoke anxiety or over-analysis in partners who equate transparency with safety"
+  },
+  "Resilient": {
+    domain: "Stress Recovery",
+    orientation: "structured",
+    energy: "measured",
+    tooltip: "Absorbs disruption and adversity without losing core coherence or forward capacity.",
+    mechanism: "recalibrates rapidly after setbacks, converting friction into durable endurance",
+    externalRead: "appears battle-tested, steady, and hard to permanently derail",
+    blindSpot: "high tolerance for strain can normalize carrying heavy loads without asking for relief",
+    friction: "may unintentionally minimize difficulties that genuinely overwhelm less hardened temperaments"
+  },
+  "Eccentric": {
+    domain: "Unconventional Identity",
+    orientation: "autonomous",
+    energy: "high",
+    tooltip: "Operates by an idiosyncratic internal logic that disregards standard social templates.",
+    mechanism: "prioritizes authenticity and unusual aesthetics over fitting neatly into expected categories",
+    externalRead: "registers as memorable, unorthodox, and impervious to herd conformity",
+    blindSpot: "distinctive habits can occasionally create unnecessary friction in conventional environments",
+    friction: "challenges status-conscious or highly traditional partners who prefer social predictability"
+  },
+  "Methodical": {
+    domain: "Systematic Execution",
+    orientation: "structured",
+    energy: "low",
+    tooltip: "Builds mastery through sequence, precision, and deliberate step-by-step progression.",
+    mechanism: "reduces error and chaos by organizing complexity into repeatable systems",
+    externalRead: "appears thorough, deliberate, and structurally reliable",
+    blindSpot: "attachment to process can slow responsiveness when improvisation is the only viable path",
+    friction: "clashes with spontaneous personalities who find step-by-step rigor suffocating"
+  },
+  "Passionate": {
+    domain: "Motivational Fire",
+    orientation: "assertive",
+    energy: "high",
+    tooltip: "Invests wholehearted conviction and emotional vitality into people, ideas, and pursuits.",
+    mechanism: "operates with visible commitment, refusing half-hearted engagement in what matters",
+    externalRead: "comes across as vivid, catalytic, and unmistakably alive",
+    blindSpot: "high emotional investment magnifies both enthusiasm and frustration when expectations clash",
+    friction: "can feel overwhelming to detached or understated personalities who regulate emotion tightly"
+  },
+  "Witty": {
+    domain: "Verbal Agility",
+    orientation: "cognitive",
+    energy: "high",
+    tooltip: "Connects incongruous ideas rapidly into sharp humor, irony, and precise observations.",
+    mechanism: "uses linguistic speed and pattern-spotting to reframe tension and test rapport",
+    externalRead: "registers as quick-minded, incisive, and effortlessly engaging",
+    blindSpot: "humor and irony can serve as armor that deflects direct emotional vulnerability",
+    friction: "can miss the mark with literal thinkers who take playful exaggeration at face value"
+  },
+  "Grounded": {
+    domain: "Reality Testing",
+    orientation: "structured",
+    energy: "low",
+    tooltip: "Remains anchored in tangible reality, proportion, and steady judgment amid emotional turbulence.",
+    mechanism: "filters exaggeration and panic through calm, proportional assessment",
+    externalRead: "acts as an emotional ballast that stabilizes surrounding dynamics",
+    blindSpot: "strong realism can occasionally dampen speculative enthusiasm before ideas take flight",
+    friction: "balances high-intensity partners well, though it can feel understated next to dramatic temperaments"
+  },
+  "Tenacious": {
+    domain: "Relentless Persistence",
+    orientation: "assertive",
+    energy: "high",
+    tooltip: "Maintains grip on an objective long after resistance would cause others to disengage.",
+    mechanism: "treats obstacles as resistance to outlast rather than signals to retreat",
+    externalRead: "appears formidable, stubbornly committed, and nearly impossible to deter",
+    blindSpot: "refusal to yield can prolong battles or investments past their optimal exit point",
+    friction: "creates deadlocks when paired with an equally unyielding or independent-minded temperament"
+  },
+  "Open-minded": {
+    domain: "Epistemic Flexibility",
+    orientation: "exploratory",
+    energy: "measured",
+    tooltip: "Holds convictions lightly enough to examine opposing frameworks without defensiveness.",
+    mechanism: "separates personal ego from current beliefs, updating views when better evidence appears",
+    externalRead: "registers as fair-minded, intellectually hospitable, and non-dogmatic",
+    blindSpot: "entertaining every angle can delay taking a firm stand when decisiveness is required",
+    friction: "can frustrate rigid or dogmatic thinkers who expect immediate ideological alignment"
+  },
+  "Private": {
+    domain: "Boundary Sovereignty",
+    orientation: "guarded",
+    energy: "low",
+    tooltip: "Maintains clear tiers of access, guarding personal interiority from casual exposure.",
+    mechanism: "treats self-revelation as a deliberate act of trust rather than a social default",
+    externalRead: "comes across as dignified, self-contained, and discerning about intimacy",
+    blindSpot: "strict compartmentalization can make others feel held at arm's length even when trust exists",
+    friction: "requires mutual respect for boundaries rather than pressure for total transparency"
+  },
+  "Persevering": {
+    domain: "Enduring Effort",
+    orientation: "structured",
+    energy: "measured",
+    tooltip: "Sustains quiet, cumulative effort across prolonged difficulty without needing constant validation.",
+    mechanism: "absorbs slow progress patiently, relying on endurance over bursts of motivation",
+    externalRead: "registers as quietly unstoppable, reliable, and immune to quick discouragement",
+    blindSpot: "enduring hardship silently can delay necessary course corrections or requests for help",
+    friction: "may struggle to understand temperaments that pivot quickly when immediate returns stall"
+  },
+  "Thoughtful": {
+    domain: "Considerate Deliberation",
+    orientation: "relational",
+    energy: "low",
+    tooltip: "Anticipates downstream consequences of words and choices on both ideas and people.",
+    mechanism: "integrates careful reasoning with awareness of how actions land on others",
+    externalRead: "appears attentive, intentional, and rarely careless in speech or behavior",
+    blindSpot: "over-weighing interpersonal impact can occasionally blunt necessary directness",
+    friction: "can feel slowed down around blunt, fast-moving personalities who speak before filtering"
+  },
+  "Confident": {
+    domain: "Self-Efficacy",
+    orientation: "assertive",
+    energy: "high",
+    tooltip: "Operates from internal trust in personal judgment and capacity to navigate uncertainty.",
+    mechanism: "acts without chronic second-guessing or dependence on external reassurance",
+    externalRead: "projects assurance, decisiveness, and low interpersonal insecurity",
+    blindSpot: "high self-trust can occasionally under-weight valid external warnings",
+    friction: "can read as dominance to more cautious or self-questioning temperaments"
+  },
+  "Imaginative": {
+    domain: "Conceptual Projection",
+    orientation: "exploratory",
+    energy: "measured",
+    tooltip: "Constructs vivid internal models and future scenarios beyond immediate sensory reality.",
+    mechanism: "navigates possibility spaces mentally, seeing what could exist rather than merely what is",
+    externalRead: "appears visionary, conceptually rich, and detached from mundane constraints",
+    blindSpot: "rich internal scenarios can occasionally substitute for messy real-world testing",
+    friction: "requires translation when collaborating with strictly literal, concrete thinkers"
+  }
+};
+
+const traitNames = Object.keys(traits);
+let mySelf = [];
+let myView = [];
+
+function renderTraits(containerId, statusId, selectionKey) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = "";
+  traitNames.forEach(name => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "trait";
+    button.textContent = name;
+    button.setAttribute("data-tooltip", traits[name].tooltip);
+    button.setAttribute("aria-pressed", "false");
+
+    button.onclick = () => {
+      let arr = selectionKey === "self" ? mySelf : myView;
+      if (arr.includes(name)) {
+        arr = arr.filter(t => t !== name);
+      } else {
+        if (arr.length >= 2) arr.shift();
+        arr.push(name);
+      }
+      if (selectionKey === "self") mySelf = arr;
+      else myView = arr;
+
+      container.querySelectorAll(".trait").forEach(item => {
+        const active = arr.includes(item.textContent);
+        item.classList.toggle("selected", active);
+        item.setAttribute("aria-pressed", String(active));
+      });
+
+      const statusEl = document.getElementById(statusId);
+      statusEl.textContent = arr.length
+        ? `Selected (${arr.length}/2): ${arr.join(" & ")}`
+        : "Select 2 traits (0/2 selected).";
+
+      document.getElementById("continueButton").disabled = !(mySelf.length === 2 && myView.length === 2);
+    };
+    container.appendChild(button);
+  });
+}
+
+function populateDropdowns() {
+  ["theirSelf1", "theirSelf2", "theirView1", "theirView2"].forEach(id => {
+    const select = document.getElementById(id);
+    traitNames.forEach(name => {
+      const option = document.createElement("option");
+      option.value = name;
+      option.textContent = `${name} — ${traits[name].domain}`;
+      select.appendChild(option);
+    });
+  });
+}
+
+function showExchange() {
+  document.getElementById("selectionSection").classList.add("hidden");
+  document.getElementById("exchangeSection").classList.remove("hidden");
+  window.scrollTo({top: 0, behavior: "smooth"});
+}
+
+function synthesizePairProfile(pair, roleLabel, framing) {
+  const [t1, t2] = pair;
+  const p1 = traits[t1];
+  const p2 = traits[t2];
+  const sameOrientation = p1.orientation === p2.orientation;
+
+  const synergyText = sameOrientation
+    ? `Both traits anchor in a <strong>${p1.orientation}</strong> posture, creating a concentrated, unmistakable signature rather than a divided temperament.`
+    : `Pairing a <strong>${p1.orientation}</strong> driver with a <strong>${p2.orientation}</strong> counterweight produces a dual-layered temperament: one quality initiates behavior while the other regulates how it lands.`;
+
+  return `
+    <div class="result-card">
+      <div class="result-label">${roleLabel}</div>
+      <div class="result-trait">${t1} + ${t2}</div>
+      <div>
+        <span class="tag-badge">${p1.domain}</span>
+        <span class="tag-badge">${p2.domain}</span>
+      </div>
+      <p>${framing}</p>
+      <div class="analysis"><strong>Behavioral Architecture:</strong> ${synergyText} Specifically, ${t1.toLowerCase()} ${p1.mechanism}, while ${t2.toLowerCase()} ${p2.mechanism}.</div>
+      <div class="analysis"><strong>External Signature:</strong> In practice, this combination ${p1.externalRead}, reinforced by an impression that ${p2.externalRead}.</div>
+      <div class="analysis"><strong>Inherent Blind Spot:</strong> ${capitalize(p1.blindSpot)}. Simultaneously, ${p2.blindSpot}.</div>
+    </div>`;
+}
+
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function analyzeMirror(selfPair, observedPair, subjectName, observerName) {
+  const exactMatches = selfPair.filter(t => observedPair.includes(t));
+  const selfDomains = selfPair.map(t => traits[t].domain);
+  const obsDomains = observedPair.map(t => traits[t].domain);
+  const domainMatches = selfDomains.filter(d => obsDomains.includes(d));
+
+  const [s1, s2] = selfPair;
+  const [o1, o2] = observedPair;
+
+  let alignmentVerdict = "";
+  if (exactMatches.length === 2) {
+    alignmentVerdict = `<strong>Total Perceptual Congruence:</strong> Both ${s1} and ${s2} were independently named by both sides. There is virtually no translation gap between internal identity and outward behavioral signal.`;
+  } else if (exactMatches.length === 1) {
+    const matched = exactMatches[0];
+    const unsharedSelf = selfPair.find(t => t !== matched);
+    const unsharedObs = observedPair.find(t => t !== matched);
+    alignmentVerdict = `<strong>Anchored Resonance with Nuance:</strong> Both sides converge directly on <span class="highlight">${matched}</span> as a core pillar. The divergence lies in emphasis: internally, ${unsharedSelf.toLowerCase()} drives the private experience (${traits[unsharedSelf].mechanism}), whereas externally, ${unsharedObs.toLowerCase()} is the more visible behavioral footprint (${traits[unsharedObs].externalRead}).`;
+  } else if (domainMatches.length > 0) {
+    alignmentVerdict = `<strong>Thematic Alignment Across Different Vocabulary:</strong> While exact labels differ, both perspectives recognize the same underlying domain of <strong>${domainMatches[0]}</strong>. ${observerName} is picking up on the outward behavioral expression of the exact internal engine ${subjectName} identifies with.`;
+  } else {
+    alignmentVerdict = `<strong>Internal-External Asymmetry:</strong> ${subjectName} experiences the self primarily through <em>${s1}</em> and <em>${s2}</em>, whereas ${observerName} registers <em>${o1}</em> and <em>${o2}</em>. This is classic Johari-window divergence: internal motivations (${traits[s1].mechanism}) translate outward into observable behaviors that read differently from across the table (${traits[o1].externalRead}).`;
+  }
+
+  return `
+    <p>${subjectName} self-identified as <span class="highlight">${s1} &amp; ${s2}</span>; ${observerName} perceived <span class="highlight">${o1} &amp; ${o2}</span>.</p>
+    <div class="analysis">${alignmentVerdict}</div>
+  `;
+}
+
+function analyzeInterpersonalMesh(mySelfPair, theirSelfPair, myViewPair, theirViewPair) {
+  const allA = [...new Set([...mySelfPair, ...theirViewPair])].map(t => traits[t]);
+  const allB = [...new Set([...theirSelfPair, ...myViewPair])].map(t => traits[t]);
+
+  const orientationsA = allA.map(p => p.orientation);
+  const orientationsB = allB.map(p => p.orientation);
+
+  const energyA = allA.filter(p => p.energy === "high").length;
+  const energyB = allB.filter(p => p.energy === "high").length;
+
+  let pacingDynamic = "";
+  if (energyA >= 2 && energyB >= 2) {
+    pacingDynamic = "<strong>High-Voltage Symmetry:</strong> Both profiles carry high cognitive or expressive activation. Interactions are likely fast, catalytic, and intellectually or emotionally charged—energizing when aligned, though prone to escalation if neither person steps back to decompress.";
+  } else if (energyA === 0 && energyB === 0) {
+    pacingDynamic = "<strong>Low-Noise, Deliberate Equilibrium:</strong> Both temperaments operate with measured, low-reactivity pacing. Neither pushes for premature disclosure or performative intensity, creating a calm, spacious dynamic—though unspoken assumptions can linger if neither initiates difficult conversations.";
+  } else {
+    pacingDynamic = "<strong>Asymmetric Pacing &amp; Regulation:</strong> One temperament brings higher outward activation while the other operates with quieter, more deliberate containment. At its best, one catalyzes movement while the other provides ballast; under stress, the faster temperament may misread restraint as withdrawal while the quieter one experiences urgency as pressure.";
+  }
+
+  const guardedPresent = orientationsA.includes("guarded") || orientationsB.includes("guarded");
+  const exploratoryPresent = orientationsA.includes("exploratory") || orientationsB.includes("exploratory");
+  const structuredPresent = orientationsA.includes("structured") || orientationsB.includes("structured");
+  const relationalPresent = orientationsA.includes("relational") || orientationsB.includes("relational");
+
+  let relationalMesh = "";
+  if (guardedPresent && relationalPresent) {
+    relationalMesh = "<strong>Boundary vs. Attunement Tension:</strong> One side prioritizes emotional containment and selective access, while the other leans toward relational attunement and responsiveness. Trust builds cleanly when restraint is respected as a boundary rather than interpreted as coldness.";
+  } else if (exploratoryPresent && structuredPresent) {
+    relationalMesh = "<strong>Catalyst vs. Anchor Dynamic:</strong> Exploratory openness meets structured realism. One temperament questions conventions and expands possibilities while the other tests feasibility and maintains stability—a productive pairing so long as neither dismisses the other's mode as reckless or rigid.";
+  } else if (orientationsA.includes("autonomous") && orientationsB.includes("autonomous")) {
+    relationalMesh = "<strong>Mutual Sovereignty:</strong> Both sides value self-determination and independent judgment. Neither responds well to subtle control or forced consensus; the bond thrives on mutual respect for autonomy and candid, equal-footing dialogue.";
+  } else {
+    relationalMesh = "<strong>Complementary Cognitive Filters:</strong> Each person notices different layers of the same situation—one tracking underlying structure or motive while the other registers experiential nuance or direct intent. Comparing notes sharpens both perspectives rather than merely echoing what each already sees.";
+  }
+
+  const primaryFrictionA = traits[mySelfPair[0]].friction;
+  const primaryFrictionB = traits[theirSelfPair[0]].friction;
+
+  return `
+    <div class="analysis">${pacingDynamic}</div>
+    <div class="analysis">${relationalMesh}</div>
+    <div class="analysis"><strong>Primary Friction Points to Watch:</strong> On your side, ${mySelfPair[0].toLowerCase()} ${primaryFrictionA}. On their side, ${theirSelfPair[0].toLowerCase()} ${primaryFrictionB}.</div>
+  `;
+}
+
+function generateAnalysis() {
+  const ts1 = document.getElementById("theirSelf1").value;
+  const ts2 = document.getElementById("theirSelf2").value;
+  const tv1 = document.getElementById("theirView1").value;
+  const tv2 = document.getElementById("theirView2").value;
+  const error = document.getElementById("exchangeError");
+
+  if (!ts1 || !ts2 || !tv1 || !tv2) {
+    error.textContent = "Complete all four dropdown fields before generating the synthesis.";
+    return;
+  }
+  if (ts1 === ts2 || tv1 === tv2) {
+    error.textContent = "Each pair must contain two distinct traits.";
+    return;
+  }
+  error.textContent = "";
+
+  const theirSelf = [ts1, ts2];
+  const theirView = [tv1, tv2];
+
+  document.getElementById("fourPerspectives").innerHTML =
+    synthesizePairProfile(mySelf, "Perspective 01 · Your Internal Anchor",
+      "The core behavioral mechanisms you recognize as native to your own operating system.") +
+    synthesizePairProfile(theirView, "Perspective 02 · How You Register to Them",
+      "The outward behavioral signature you project into their field of observation.") +
+    synthesizePairProfile(theirSelf, "Perspective 03 · Their Internal Anchor",
+      "The traits they identify as central to their own internal disposition.") +
+    synthesizePairProfile(myView, "Perspective 04 · How They Register to You",
+      "The qualities that stand out most vividly when you observe how they move through the world.");
+
+  document.getElementById("comparisonAnalysis").innerHTML =
+    `<h3>Your Self-Concept vs. Their Observation of You</h3>` +
+    analyzeMirror(mySelf, theirView, "You", "They") +
+    `<div class="divider"></div>` +
+    `<h3>Their Self-Concept vs. Your Observation of Them</h3>` +
+    analyzeMirror(theirSelf, myView, "They", "You");
+
+  document.getElementById("relationalDynamics").innerHTML =
+    analyzeInterpersonalMesh(mySelf, theirSelf, myView, theirView);
+
+  const allEight = [...mySelf, ...myView, ...theirSelf, ...theirView];
+  const counts = {};
+  allEight.forEach(t => counts[t] = (counts[t] || 0) + 1);
+  const recurring = Object.keys(counts).filter(t => counts[t] > 1);
+
+  const allDomains = allEight.map(t => traits[t].domain);
+  const domCounts = {};
+  allDomains.forEach(d => domCounts[d] = (domCounts[d] || 0) + 1);
+  const dominantDomains = Object.entries(domCounts)
+    .filter(([, c]) => c >= 2)
+    .sort((a, b) => b[1] - a[1])
+    .map(([d, c]) => `${d} (${c}×)`);
+
+  let overallHTML = "";
+  if (recurring.length) {
+    overallHTML += `<div class="analysis"><strong>Convergent Anchors:</strong> <span class="highlight">${recurring.join(", ")}</span> surfaced multiple times across the four quadrants, marking a defining motif in how both of you conceptualize identity and relational presence.</div>`;
+  } else {
+    overallHTML += `<div class="analysis"><strong>Eight Distinct Coordinates:</strong> Every single selection across all four quadrants is unique. Rather than mirroring identical traits, both of you occupy distinct psychological coordinates—creating high differentiation and rich material for mutual curiosity.</div>`;
+  }
+
+  if (dominantDomains.length) {
+    overallHTML += `<div class="analysis"><strong>Dominant Psychological Axes:</strong> Across all eight selections, the shared gravity centers around <strong>${dominantDomains.join(", ")}</strong>. Even where specific adjectives differ, your perceptions repeatedly orbit these behavioral themes.</div>`;
+  }
+
+  overallHTML += `<p class="muted">Perceptual accuracy in relationships rarely means identical self-labels; it means understanding how internal motives translate into outward signals—and recognizing where temperament differences create complementarity rather than conflict.</p>`;
+
+  document.getElementById("overallAnalysis").innerHTML = overallHTML;
+
+  document.getElementById("exchangeSection").classList.add("hidden");
+  document.getElementById("resultsSection").classList.remove("hidden");
+  window.scrollTo({top: 0, behavior: "smooth"});
+}
+
+function restart() {
+  mySelf = [];
+  myView = [];
+  ["theirSelf1", "theirSelf2", "theirView1", "theirView2"].forEach(id => {
+    document.getElementById(id).value = "";
+  });
+  document.getElementById("selectionSection").classList.remove("hidden");
+  document.getElementById("exchangeSection").classList.add("hidden");
+  document.getElementById("resultsSection").classList.add("hidden");
+  document.getElementById("selfStatus").textContent = "Select 2 traits (0/2 selected).";
+  document.getElementById("otherStatus").textContent = "Select 2 traits (0/2 selected).";
+  document.getElementById("continueButton").disabled = true;
+  renderTraits("selfTraits", "selfStatus", "self");
+  renderTraits("otherTraits", "otherStatus", "other");
+  window.scrollTo({top: 0, behavior: "smooth"});
+}
+
+renderTraits("selfTraits", "selfStatus", "self");
+renderTraits("otherTraits", "otherStatus", "other");
+populateDropdowns();
+</script>
+</body>
+</html>
