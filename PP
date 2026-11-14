@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Two Perspectives</title>
+<style>
+:root {
+  --bg: #08080d;
+  --panel: #11111c;
+  --panel2: #171725;
+  --text: #f3f1ff;
+  --muted: #aaa8bf;
+  --pink: #ff4fd8;
+  --cyan: #42eaff;
+  --purple: #a879ff;
+  --green: #7dffbd;
+  --border: #343044;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 24px 15px 50px;
+  background:
+    radial-gradient(ellipse at 10% 0%, #24102d 0, transparent 35%),
+    radial-gradient(ellipse at 95% 15%, #101f35 0, transparent 32%),
+    var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.55;
+}
+main { max-width: 780px; margin: auto; }
+header { text-align: center; margin: 15px 0 30px; }
+h1 {
+  margin: 0;
+  font-size: clamp(2.3rem, 8vw, 4rem);
+  letter-spacing: 2px;
+  line-height: 1.1;
+  color: white;
+  text-shadow: 0 0 12px #ff4fd8, 0 0 30px #a879ff;
+}
+.subtitle {
+  color: var(--muted);
+  margin-top: 12px;
+  font-size: 1rem;
+}
+.panel {
+  background: linear-gradient(145deg, #151522, #0e0e17);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 22px;
+  margin: 18px 0;
+  box-shadow: 0 8px 30px #0008;
+}
+h2 {
+  font-size: 1.25rem;
+  margin: 0 0 8px;
+  color: var(--cyan);
+}
+h3 { color: var(--pink); margin: 20px 0 8px; }
+p { margin: 8px 0 14px; }
+.muted { color: var(--muted); font-size: .94rem; }
+.step {
+  display: inline-block;
+  color: var(--pink);
+  font-size: .75rem;
+  letter-spacing: 2px;
+  font-weight: bold;
+  margin-bottom: 7px;
+}
+.trait-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+  gap: 9px;
+  margin-top: 16px;
+}
+.trait {
+  position: relative;
+  min-height: 48px;
+  padding: 12px 10px;
+  border: 1px solid #39354b;
+  border-radius: 9px;
+  background: #171724;
+  color: var(--text);
+  text-align: center;
+  cursor: pointer;
+  font-size: .9rem;
+  transition: .15s ease;
+}
+.trait:hover {
+  border-color: var(--cyan);
+  box-shadow: 0 0 12px #42eaff33;
+}
+.trait.selected {
+  border-color: var(--pink);
+  background: #351b38;
+  color: white;
+  box-shadow: 0 0 13px #ff4fd855;
+}
+.trait.selected::after {
+  content: "✓";
+  color: var(--pink);
+  font-weight: bold;
+  margin-left: 7px;
+}
+.trait:focus-visible, button:focus-visible, select:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 3px;
+}
+.selection-status {
+  min-height: 24px;
+  color: var(--green);
+  font-size: .88rem;
+  margin-top: 12px;
+}
+button {
+  border: 0;
+  border-radius: 9px;
+  padding: 13px 18px;
+  margin-top: 14px;
+  font-size: .92rem;
+  font-weight: bold;
+  letter-spacing: .5px;
+  cursor: pointer;
+  color: #08080d;
+  background: linear-gradient(100deg, var(--cyan), var(--purple));
+}
+button:hover { filter: brightness(1.12); }
+button.secondary {
+  color: var(--text);
+  background: #292638;
+  border: 1px solid #514965;
+}
+button:disabled { opacity: .35; cursor: not-allowed; }
+select {
+  width: 100%;
+  margin: 8px 0 15px;
+  padding: 13px;
+  border-radius: 8px;
+  color: var(--text);
+  background: #191927;
+  border: 1px solid #48415d;
+  font-size: 1rem;
+}
+label {
+  display: block;
+  color: var(--cyan);
+  font-size: .9rem;
+  font-weight: bold;
+  margin-top: 12px;
+}
+.hidden { display: none !important; }
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #625174, transparent);
+  margin: 22px 0;
+}
+.result-card {
+  background: #171725;
+  border: 1px solid #38334b;
+  border-radius: 12px;
+  padding: 17px;
+  margin: 12px 0;
+}
+.result-card h3 { margin-top: 0; }
+.result-label {
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  font-size: .7rem;
+  font-weight: bold;
+}
+.result-trait {
+  font-size: 1.35rem;
+  font-weight: bold;
+  color: var(--pink);
+  margin: 3px 0 8px;
+}
+.analysis {
+  border-left: 3px solid var(--purple);
+  padding: 3px 0 3px 13px;
+  margin: 12px 0;
+}
+.analysis strong { color: var(--cyan); }
+.highlight {
+  color: var(--green);
+  font-weight: bold;
+}
+.result-heading {
+  text-align: center;
+  padding: 15px 0 5px;
+}
+.result-heading h2 {
+  color: var(--pink);
+  font-size: 1.6rem;
+}
+.footer {
+  text-align: center;
+  color: #77748a;
+  font-size: .78rem;
+  margin-top: 30px;
+}
+@media print {
+  body {
+    background: #08080d !important;
+    color: white !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .no-print { display: none !important; }
+  .panel, .result-card { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>TWO<br>PERSPECTIVES</h1>
+  <div class="subtitle">Two people. Four perceptions. A closer look at how you see each other.</div>
+</header>
+
+<section id="selectionSection">
+  <div class="panel">
+    <span class="step">ROUND 01</span>
+    <h2>How do you see yourself?</h2>
+    <p class="muted">Choose the one trait that you feel best describes your own nature.</p>
+    <div class="trait-grid" id="selfTraits"></div>
+    <div class="selection-status" id="selfStatus">Choose one trait.</div>
+  </div>
+
+  <div class="panel">
+    <span class="step">ROUND 02</span>
+    <h2>How do you see them?</h2>
+    <p class="muted">Choose the ONE trait that you feel best describes their nature.</p>
+    <div class="trait-grid" id="otherTraits"></div>
+    <div class="selection-status" id="otherStatus">Choose one trait.</div>
+    <button id="continueButton" disabled onclick="showExchange()">Continue</button>
+  </div>
+</section>
+
+<section id="exchangeSection" class="hidden">
+  <div class="panel">
+    <span class="step">COMPARE YOUR PICKS</span>
+    <h2>Exchange screenshots</h2>
+    <p>Each person should complete the first two rounds independently. Share your choices.</p>
+    <p class="muted">Enter the two traits they selected below.</p>
+    <div class="divider"></div>
+    <label for="theirSelf">What trait did they choose for themselves?</label>
+    <select id="theirSelf">
+      <option value="">Select their answer</option>
+    </select>
+    <label for="theirView">What trait did they choose for you?</label>
+    <select id="theirView">
+      <option value="">Select their answer</option>
+    </select>
+    <button onclick="generateAnalysis()">Generate My Personality Breakdown</button>
+    <div id="exchangeError" class="selection-status"></div>
+  </div>
+</section>
+
+<section id="resultsSection" class="hidden">
+  <div class="result-heading">
+    <span class="step">YOUR RESULTS</span>
+    <h2>Perspectives</h2>
+    <p class="muted">What you see in yourself, what you see in the other person, and how those perceptions compare.</p>
+  </div>
+
+  <div id="fourPerspectives"></div>
+
+  <div class="panel">
+    <h2>What the differences reveal</h2>
+    <div id="comparisonAnalysis"></div>
+  </div>
+
+  <div class="panel">
+    <h2>The overall picture</h2>
+    <div id="overallAnalysis"></div>
+  </div>
+
+  <div class="no-print" style="text-align:center">
+    <button onclick="window.print()">Save or Print Results</button>
+    <button class="secondary" onclick="restart()">Start Over</button>
+  </div>
+  <p class="footer">**This is a reflection exercise, not a clinical personality assessment.**</p>
+</section>
+
+</main>
+
+<script>
+/*
+  Trait profiles use the Big Five as a broad psychological reference.
+  Each trait has its own definition and interpretive nuance.
+  The framework is used as a guide, not as a diagnosis or fixed label.
+*/
+const traits = {
+  "Intense": {
+    dimensions:["Emotional depth","Openness"],
+    description:"Experiences thoughts, interests, emotions, or commitments with considerable depth and force.",
+    expression:"May become deeply absorbed in ideas, experiences, and people that matter.",
+    nuance:"Intensity can be directed inward. Someone may feel things strongly while remaining outwardly controlled or reserved.",
+    tension:"Can become consuming when there is little room to step back."
+  },
+  "Curious": {
+    dimensions:["Openness"],
+    description:"Has a strong desire to understand, investigate, and discover how things work.",
+    expression:"Asks questions, notices unfamiliar details, and explores ideas beyond immediate necessity.",
+    nuance:"Curiosity can be intellectual, practical, social, or philosophical.",
+    tension:"May keep exploring long after a straightforward answer would satisfy someone else."
+  },
+  "Detached": {
+    dimensions:["Emotional distance","Low emotional expressiveness"],
+    description:"Maintains psychological distance and does not readily become emotionally absorbed in people or situations.",
+    expression:"May observe before participating, keep personal feelings private, or remain composed under pressure.",
+    nuance:"Detachment can reflect independence, self-protection, restraint, or simply a preference for emotional space. It does not automatically mean a lack of care.",
+    tension:"Others may interpret distance as disinterest when the person's internal experience is more complex."
+  },
+  "Independent": {
+    dimensions:["Autonomy","Low compliance"],
+    description:"Values personal judgment and prefers to think and act without excessive reliance on others.",
+    expression:"Makes individual decisions, protects personal freedom, and is comfortable working alone.",
+    nuance:"Independence can coexist with loyalty, empathy, and close relationships.",
+    tension:"May resist unwanted influence even when cooperation would be useful."
+  },
+  "Introspective": {
+    dimensions:["Openness","Self-reflection"],
+    description:"Frequently examines personal thoughts, motives, reactions, and experiences.",
+    expression:"Reflects on why things happen and looks for meaning beneath the surface.",
+    nuance:"Introspection is inward attention. It is different from simply being quiet or withdrawn.",
+    tension:"Reflection can turn into overanalysis when conclusions remain unresolved."
+  },
+  "Analytical": {
+    dimensions:["Openness","Intellect"],
+    description:"Approaches information through reasoning, evidence, structure, and careful examination.",
+    expression:"Looks for patterns, tests assumptions, and breaks complicated ideas into understandable parts.",
+    nuance:"Analytical thinking can work alongside intuition; the two can inform different stages of judgment.",
+    tension:"May give more weight to explanation and evidence than to immediate emotional reactions."
+  },
+  "Observant": {
+    dimensions:["Attention to detail","Openness"],
+    description:"Pays close attention to surroundings, behavior, and details that others may overlook.",
+    expression:"Notices changes, inconsistencies, patterns, and subtle cues.",
+    nuance:"Observation is about noticing. Interpretation is a separate process.",
+    tension:"May notice more information than is immediately useful."
+  },
+  "Intuitive": {
+    dimensions:["Openness","Pattern recognition"],
+    description:"Often reaches an impression through instinctive pattern recognition before consciously working through every detail.",
+    expression:"Connects seemingly unrelated information and forms quick impressions.",
+    nuance:"Intuition can be informed by experience, but an impression still benefits from verification.",
+    tension:"May struggle to explain how a conclusion was reached."
+  },
+  "Reserved": {
+    dimensions:["Lower extraversion","Emotional restraint"],
+    description:"Is selective about self-disclosure and tends to express thoughts or feelings with restraint.",
+    expression:"May prefer listening, observing, and choosing carefully when to speak.",
+    nuance:"Being reserved does not necessarily indicate shyness, insecurity, or lack of interest.",
+    tension:"Others may have difficulty knowing what the person thinks or feels."
+  },
+  "Adventurous": {
+    dimensions:["Openness","Sensation seeking"],
+    description:"Is drawn to new experiences, unfamiliar situations, and opportunities to explore.",
+    expression:"May enjoy experimentation, discovery, and stepping outside familiar routines.",
+    nuance:"Adventure can be intellectual, physical, creative, or social.",
+    tension:"Routine and predictability may feel limiting."
+  },
+  "Perceptive": {
+    dimensions:["Openness","Social awareness"],
+    description:"Recognizes underlying meanings, subtle changes, and implications in situations or behavior.",
+    expression:"Often sees patterns or implications that are not immediately obvious.",
+    nuance:"Perception involves both noticing information and making sense of it.",
+    tension:"May become highly alert to inconsistencies or unspoken implications."
+  },
+  "Empathetic": {
+    dimensions:["Agreeableness","Emotional awareness"],
+    description:"Is attentive to the feelings and experiences of other people.",
+    expression:"Tries to understand another person's perspective and emotional state.",
+    nuance:"Empathy is the ability to understand or share another person's experience. It does not require agreement.",
+    tension:"May absorb emotional strain from situations involving others."
+  },
+  "Independent-minded": {
+    dimensions:["Autonomy","Openness"],
+    description:"Forms opinions through personal reasoning rather than automatically adopting the views of a group.",
+    expression:"Questions assumptions and is willing to hold an unconventional position.",
+    nuance:"Independent-mindedness describes how opinions are formed, rather than how much someone prefers solitude.",
+    tension:"May find consensus difficult when the reasoning does not hold up."
+  },
+  "Candid": {
+    dimensions:["Straightforwardness","Low agreeableness in conflict"],
+    description:"Communicates thoughts directly and places a high value on honesty and clarity.",
+    expression:"Says what is meant and tends to avoid excessive softening or ambiguity.",
+    nuance:"Candor can be considerate or blunt depending on delivery and context.",
+    tension:"Directness may be received as harshness when others expect more cushioning."
+  },
+  "Disciplined": {
+    dimensions:["Conscientiousness"],
+    description:"Uses structure, self-control, and consistent effort to pursue goals.",
+    expression:"Follows through, manages impulses, and maintains standards.",
+    nuance:"Discipline concerns consistent behavior, even when motivation fluctuates.",
+    tension:"May become frustrated when plans or expectations are repeatedly disrupted."
+  },
+  "Adaptable": {
+    dimensions:["Openness","Flexibility"],
+    description:"Adjusts thinking and behavior when circumstances, information, or priorities change.",
+    expression:"Can revise plans and respond to unfamiliar situations without becoming fixed on one approach.",
+    nuance:"Adaptability is flexibility in response to change, not a lack of personal standards.",
+    tension:"May spend considerable energy accommodating changing circumstances."
+  },
+  "Ambitious": {
+    dimensions:["Conscientiousness","Achievement striving"],
+    description:"Is motivated to accomplish meaningful goals and reach a high level of achievement.",
+    expression:"Sets objectives, pursues improvement, and looks for opportunities to advance.",
+    nuance:"Ambition can be driven by personal fulfillment, mastery, recognition, or influence.",
+    tension:"May become dissatisfied when progress feels slow."
+  },
+  "Creative": {
+    dimensions:["Openness"],
+    description:"Generates original ideas and enjoys imagining possibilities beyond conventional approaches.",
+    expression:"Makes unusual associations and explores alternative ways to solve problems.",
+    nuance:"Creativity can be artistic, practical, intellectual, or inventive.",
+    tension:"May become frustrated by rigid systems that leave little room for experimentation."
+  },
+  "Composed": {
+    dimensions:["Emotional stability","Emotional regulation"],
+    description:"Generally maintains outward steadiness and control when facing pressure.",
+    expression:"Responds deliberately rather than reacting immediately.",
+    nuance:"Composure describes how someone manages expression. It does not establish how much they feel internally.",
+    tension:"Others may underestimate the amount of thought or emotion happening beneath the surface."
+  },
+  "Skeptical": {
+    dimensions:["Openness","Critical evaluation"],
+    description:"Questions claims and prefers to examine evidence before accepting conclusions.",
+    expression:"Tests explanations, looks for inconsistencies, and avoids accepting information at face value.",
+    nuance:"Skepticism is a habit of evaluation, not automatic cynicism.",
+    tension:"May take longer to trust claims or explanations."
+  },
+  "Loyal": {
+    dimensions:["Agreeableness","Commitment"],
+    description:"Places importance on reliability, commitment, and standing by people or principles.",
+    expression:"Maintains commitments and values consistency in relationships.",
+    nuance:"Loyalty can be directed toward people, values, or shared responsibilities.",
+    tension:"May remain committed to situations longer than is beneficial."
+  },
+  "Assertive": {
+    dimensions:["Extraversion","Agency"],
+    description:"Expresses needs, opinions, and boundaries with confidence.",
+    expression:"Speaks up, takes initiative, and is willing to address disagreement.",
+    nuance:"Assertiveness is the ability to communicate clearly; it does not require aggression.",
+    tension:"May be perceived as forceful in settings where people avoid direct disagreement."
+  },
+  "Contemplative": {
+    dimensions:["Openness","Reflection"],
+    description:"Prefers to think carefully about experiences, ideas, and possibilities before reaching conclusions.",
+    expression:"Considers different angles and spends time examining meaning.",
+    nuance:"Contemplation is deliberate thought, while introspection specifically examines the self.",
+    tension:"May delay action while considering additional possibilities."
+  },
+  "Spontaneous": {
+    dimensions:["Openness","Lower deliberation"],
+    description:"Is comfortable acting in the moment and allowing experiences to unfold without extensive planning.",
+    expression:"Responds to opportunities as they arise and enjoys flexibility.",
+    nuance:"Spontaneity can be playful or practical; it does not automatically mean irresponsibility.",
+    tension:"May become impatient with excessive planning or rigid schedules."
+  },
+  "Pragmatic": {
+    dimensions:["Conscientiousness","Practical reasoning"],
+    description:"Focuses on what is workable, useful, and likely to produce a concrete result.",
+    expression:"Prioritizes practical solutions over abstract possibilities when making decisions.",
+    nuance:"Pragmatism can coexist with imagination and long-term ideals.",
+    tension:"May dismiss ideas that lack an obvious practical application."
+  },
+  "Compassionate": {
+    dimensions:["Agreeableness","Empathy"],
+    description:"Is motivated to respond to suffering or difficulty with concern and care.",
+    expression:"Offers consideration and support when others are struggling.",
+    nuance:"Compassion involves concern and a willingness to respond, not simply recognizing emotions.",
+    tension:"May feel responsible for problems that cannot be personally solved."
+  },
+  "Mysterious": {
+    dimensions:["Low self-disclosure","Reserved expression"],
+    description:"Reveals relatively little about personal thoughts, motives, or feelings, leaving others to interpret what remains private.",
+    expression:"Can be difficult to read and may disclose information selectively.",
+    nuance:"Mystery describes how someone is perceived by others, rather than a specific psychological trait.",
+    tension:"Others may fill in missing information with their own assumptions."
+  },
+   "Resilient": {
+    dimensions:["Emotional stability","Persistence"],
+    description:"Can recover, adapt, or continue functioning after setbacks and difficult experiences.",
+    expression:"Regroups after challenges and finds ways to move forward.",
+    nuance:"Resilience does not mean someone is unaffected by hardship.",
+    tension:"May feel pressure to keep going without acknowledging personal limits."
+  },
+  "Eccentric": {
+    dimensions:["Openness","Unconventionality"],
+    description:"Has distinctive preferences, ideas, or ways of approaching life that differ from common expectations.",
+    expression:"May question conventions and express individuality in unusual ways.",
+    nuance:"Eccentricity concerns distinctiveness, not competence or social ability.",
+    tension:"May feel out of step with environments that strongly reward conformity."
+  },
+  "Methodical": {
+    dimensions:["Conscientiousness","Orderliness"],
+    description:"Approaches tasks systematically, with attention to sequence, detail, and consistency.",
+    expression:"Prefers organized processes and deliberate steps.",
+    nuance:"Methodical thinking is about process and structure, not necessarily perfectionism.",
+    tension:"Unexpected changes can interrupt a preferred way of working."
+  },
+  "Passionate": {
+    dimensions:["Emotional depth","Motivation"],
+    description:"Shows strong enthusiasm, interest, or commitment toward people, ideas, or pursuits.",
+    expression:"Invests substantial energy in what matters personally.",
+    nuance:"Passion can be deeply felt without always being openly displayed.",
+    tension:"Strong investment can make disappointment more pronounced."
+  },
+  "Witty": {
+    dimensions:["Openness","Social expressiveness"],
+    description:"Uses cleverness, timing, and quick associations to communicate humor or make observations.",
+    expression:"Notices amusing connections and can respond with sharp or unexpected remarks.",
+    nuance:"Wit is a style of expression, not necessarily a measure of sociability.",
+    tension:"Humor can sometimes be misunderstood when others miss the underlying point."
+  },
+  "Grounded": {
+    dimensions:["Emotional stability","Practicality"],
+    description:"Maintains a realistic perspective and tends to stay connected to immediate circumstances.",
+    expression:"Considers practical limits and avoids being carried away by every passing reaction.",
+    nuance:"Being grounded can coexist with imagination and ambition.",
+    tension:"May be cautious about ideas that seem detached from current realities."
+  },
+  "Tenacious": {
+    dimensions:["Conscientiousness","Persistence"],
+    description:"Continues pursuing an objective despite resistance, frustration, or setbacks.",
+    expression:"Stays committed when progress requires sustained effort.",
+    nuance:"Tenacity is persistence in pursuit of an objective; it differs from discipline, which concerns consistent self-management.",
+    tension:"May continue pursuing something after circumstances have changed."
+  },
+  "Open-minded": {
+    dimensions:["Openness","Intellectual flexibility"],
+    description:"Is willing to consider unfamiliar ideas and perspectives before deciding what to accept.",
+    expression:"Listens to different viewpoints and can revise existing beliefs.",
+    nuance:"Open-mindedness means considering an idea, not automatically agreeing with it.",
+    tension:"May spend time weighing perspectives that others dismiss quickly."
+  },
+  "Private": {
+    dimensions:["Low self-disclosure","Reserved expression"],
+    description:"Places importance on personal boundaries and chooses carefully what to share.",
+    expression:"Keeps certain experiences, opinions, or emotions within a trusted circle.",
+    nuance:"Privacy is a boundary preference, not proof of emotional distance.",
+    tension:"Others may mistake discretion for secrecy or lack of trust."
+  },
+  "Persevering": {
+    dimensions:["Conscientiousness","Persistence"],
+    description:"Continues working toward an objective through difficulty and repeated effort.",
+    expression:"Returns to a task after setbacks and maintains effort over time.",
+    nuance:"Perseverance emphasizes sustained effort; tenacity emphasizes determination in the face of resistance.",
+    tension:"May have difficulty recognizing when a different approach is needed."
+  },
+  "Thoughtful": {
+    dimensions:["Agreeableness","Reflection"],
+    description:"Considers the effects of words and actions and gives attention to the needs or perspectives of others.",
+    expression:"Thinks before responding and takes context into account.",
+    nuance:"Thoughtfulness can describe consideration for others as well as careful reasoning.",
+    tension:"May spend too much time considering how a decision will affect everyone."
+  },
+  "Confident": {
+    dimensions:["Emotional stability","Extraversion"],
+    description:"Has trust in personal abilities, judgment, or capacity to handle situations.",
+    expression:"Can make decisions and express opinions without constant reassurance.",
+    nuance:"Confidence can be quiet or expressive. It does not require dominance.",
+    tension:"May underestimate uncertainty when confidence becomes excessive."
+  },
+  "Imaginative": {
+    dimensions:["Openness"],
+    description:"Uses mental imagery and possibility-oriented thinking to explore ideas beyond what is immediately present.",
+    expression:"Envisions alternatives, scenarios, and original concepts.",
+    nuance:"Imagination can support creativity, planning, and abstract thought.",
+    tension:"May become absorbed in possibilities that are difficult to put into practice."
+  }
+};
+
+const traitNames = Object.keys(traits);
+let mySelf = "";
+let myView = "";
+
+function renderTraits(containerId, statusId, selectionKey) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = "";
+  traitNames.forEach(name => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "trait";
+    button.textContent = name;
+    button.setAttribute("aria-pressed", "false");
+    button.onclick = () => {
+      if (selectionKey === "self") mySelf = name;
+      else myView = name;
+
+      container.querySelectorAll(".trait").forEach(item => {
+        const active = item.textContent === name;
+        item.classList.toggle("selected", active);
+        item.setAttribute("aria-pressed", String(active));
+      });
+
+      document.getElementById(statusId).textContent = "Selected: " + name;
+      document.getElementById("continueButton").disabled = !(mySelf && myView);
+    };
+    container.appendChild(button);
+  });
+}
+
+function populateDropdowns() {
+  ["theirSelf", "theirView"].forEach(id => {
+    const select = document.getElementById(id);
+    traitNames.forEach(name => {
+      const option = document.createElement("option");
+      option.value = name;
+      option.textContent = name;
+      select.appendChild(option);
+    });
+  });
+}
+
+function showExchange() {
+  document.getElementById("selectionSection").classList.add("hidden");
+  document.getElementById("exchangeSection").classList.remove("hidden");
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function getProfile(name) {
+  return traits[name];
+}
+
+function overlap(a, b) {
+  return a.dimensions.filter(x => b.dimensions.includes(x));
+}
+
+function describeRelationship(aName, bName) {
+  const a = getProfile(aName);
+  const b = getProfile(bName);
+  const shared = overlap(a, b);
+
+  if (aName === bName) {
+    return `${aName} appears in both descriptions. You recognize the same quality in yourself that the other person recognizes in you. That is a direct point of agreement between your self-perception and their outside impression.`;
+  }
+
+  if (shared.length >= 2) {
+    return `These choices approach personality from different angles, but they share themes of ${shared.join(" and ").toLowerCase()}. ${aName} emphasizes ${a.description.charAt(0).toLowerCase() + a.description.slice(1)} ${bName} emphasizes ${b.description.charAt(0).toLowerCase() + b.description.slice(1)} This suggests the two descriptions may be noticing related aspects of the same broader disposition.`;
+  }
+
+  if (shared.length === 1) {
+    return `There is some overlap through ${shared[0].toLowerCase()}, although the traits describe different expressions. ${aName} points toward ${a.description.charAt(0).toLowerCase() + a.description.slice(1)} ${bName} points toward ${b.description.charAt(0).toLowerCase() + b.description.slice(1)} The two perspectives may be picking up on different sides of a broader quality.`;
+  }
+
+  return `The descriptions emphasize different aspects of personality. ${aName} points toward ${a.description.charAt(0).toLowerCase() + a.description.slice(1)} ${bName} points toward ${b.description.charAt(0).toLowerCase() + b.description.slice(1)} This difference may reflect what each person notices most, or which situations bring different qualities to the surface.`;
+}
+
+function describePairing(aName, bName) {
+  const a = getProfile(aName);
+  const b = getProfile(bName);
+  const shared = overlap(a, b);
+
+  let text = `<strong>${aName} + ${bName}</strong><br>`;
+  text += `${a.description} ${b.description}`;
+
+  if (aName === bName) {
+    text += ` The repeated choice gives this quality particular importance in the way both perspectives describe the person.`;
+  } else if (shared.length) {
+    text += ` The traits share a broader theme: ${shared.join(", ").toLowerCase()}. They can reinforce one another while describing different expressions of that theme.`;
+  } else {
+    text += ` These traits can coexist even though they describe different dimensions. A person can express one quality in certain situations and another in different circumstances.`;
+  }
+
+  text += `<div class="analysis"><strong>How it may show up:</strong> ${a.expression} ${b.expression}</div>`;
+  text += `<div class="analysis"><strong>A possible tension:</strong> ${a.tension} ${b.tension}</div>`;
+  return text;
+}
+
+function perspectiveCard(title, traitName, description) {
+  const profile = getProfile(traitName);
+  return `
+    <div class="result-card">
+      <div class="result-label">${title}</div>
+      <div class="result-trait">${traitName}</div>
+      <p>${description}</p>
+      <div class="analysis"><strong>What this trait suggests:</strong> ${profile.description}</div>
+      <div class="analysis"><strong>How it may be expressed:</strong> ${profile.expression}</div>
+      <div class="analysis"><strong>Important distinction:</strong> ${profile.nuance}</div>
+    </div>`;
+}
+
+function generateAnalysis() {
+  const theirSelf = document.getElementById("theirSelf").value;
+  const theirView = document.getElementById("theirView").value;
+  const error = document.getElementById("exchangeError");
+
+  if (!theirSelf || !theirView) {
+    error.textContent = "Please enter both traits from the other person's screenshot.";
+    return;
+  }
+  error.textContent = "";
+
+  const mySelfProfile = getProfile(mySelf);
+  const myViewProfile = getProfile(myView);
+  const theirSelfProfile = getProfile(theirSelf);
+  const theirViewProfile = getProfile(theirView);
+
+  document.getElementById("fourPerspectives").innerHTML =
+    perspectiveCard("How I see myself", mySelf,
+      "This is the quality you identify with most strongly when describing your own nature.") +
+    perspectiveCard("How I see the other person", myView,
+      "This is the quality that stands out most to you when you consider the other person's nature.") +
+    perspectiveCard("How the other person sees themselves", theirSelf,
+      "This is the quality the other person identifies with most strongly when describing their own nature.") +
+    perspectiveCard("How the other person sees me", theirView,
+      "This is the quality the other person notices most when describing your nature.");
+
+  const firstComparison = describeRelationship(mySelf, theirView);
+  const secondComparison = describeRelationship(theirSelf, myView);
+
+  const comparisonHTML = `
+    <h3>Your self-perception vs. their perception of you</h3>
+    <p>You chose <span class="highlight">${mySelf}</span> for yourself. The other person chose <span class="highlight">${theirView}</span> for you.</p>
+    <p>${firstComparison}</p>
+    <div class="divider"></div>
+    <h3>Their self-perception vs. your perception of them</h3>
+    <p>The other person chose <span class="highlight">${theirSelf}</span> for themselves. You chose <span class="highlight">${myView}</span> for them.</p>
+    <p>${secondComparison}</p>
+  `;
+  document.getElementById("comparisonAnalysis").innerHTML = comparisonHTML;
+
+  const myPair = describePairing(mySelf, theirView);
+  const theirPair = describePairing(theirSelf, myView);
+
+  const sharedChoices = [mySelf, myView, theirSelf, theirView];
+  const counts = {};
+  sharedChoices.forEach(t => counts[t] = (counts[t] || 0) + 1);
+  const repeated = Object.keys(counts).filter(t => counts[t] > 1);
+
+  let overall = `
+    <h3>Your two perspectives of each other</h3>
+    <p>${myPair}</p>
+    <div class="divider"></div>
+    <h3>The other person's two perspectives</h3>
+    <p>${theirPair}</p>
+  `;
+
+  if (repeated.length) {
+    overall += `<div class="analysis"><strong>Recurring quality:</strong> ${repeated.join(", ")} appears more than once across the four choices. That makes it a recurring theme in how the two of you describe yourselves and each other.</div>`;
+  } else {
+    overall += `<div class="analysis"><strong>Distinct choices:</strong> All four selections are different. Each answer highlights a separate quality, giving you a broader range of perspectives rather than one repeated description.</div>`;
+  }
+
+  const allDimensions = [
+    ...mySelfProfile.dimensions,
+    ...myViewProfile.dimensions,
+    ...theirSelfProfile.dimensions,
+    ...theirViewProfile.dimensions
+  ];
+  const dimensionCounts = {};
+  allDimensions.forEach(d => dimensionCounts[d] = (dimensionCounts[d] || 0) + 1);
+  const strongestThemes = Object.entries(dimensionCounts)
+    .filter(([, count]) => count >= 2)
+    .sort((a,b) => b[1] - a[1])
+    .map(([name]) => name);
+
+  if (strongestThemes.length) {
+    overall += `<div class="analysis"><strong>Broader themes:</strong> ${strongestThemes.join(", ")} appear across multiple selections. These are recurring interpretive themes in the chosen words, not measured personality scores.</div>`;
+  }
+
+  overall += `<p class="muted">A single adjective captures only one part of a person. The differences here are useful starting points for understanding how each person interprets the other's behavior, not proof that either person has the complete picture.</p>`;
+
+  document.getElementById("overallAnalysis").innerHTML = overall;
+
+  document.getElementById("exchangeSection").classList.add("hidden");
+  document.getElementById("resultsSection").classList.remove("hidden");
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function restart() {
+  mySelf = "";
+  myView = "";
+  document.getElementById("theirSelf").value = "";
+  document.getElementById("theirView").value = "";
+  document.getElementById("selectionSection").classList.remove("hidden");
+  document.getElementById("exchangeSection").classList.add("hidden");
+  document.getElementById("resultsSection").classList.add("hidden");
+  document.getElementById("selfStatus").textContent = "Choose one trait.";
+  document.getElementById("otherStatus").textContent = "Choose one trait.";
+  document.getElementById("continueButton").disabled = true;
+  renderTraits("selfTraits", "selfStatus", "self");
+  renderTraits("otherTraits", "otherStatus", "other");
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+renderTraits("selfTraits", "selfStatus", "self");
+renderTraits("otherTraits", "otherStatus", "other");
+populateDropdowns();
+</script>
+</body>
+</html>
